@@ -29,6 +29,19 @@ public class StartupService {
             throw new IllegalArgumentException("A startup with this name already exists.");
         }
 
+        if (startup.getName() == null || startup.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Startup name cannot be empty.");
+        }
+
+        if (startup.getSlogan() == null || startup.getSlogan().trim().isEmpty()) {
+            throw new IllegalArgumentException("Startup slogan cannot be empty.");
+        }
+
+        int currentYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);
+        if (startup.getFoundationYear() < 1800 || startup.getFoundationYear() > currentYear) {
+            throw new IllegalArgumentException("Invalid foundation year. It must be between 1800 and " + currentYear + ".");
+        }
+
         return startupRepository.save(startup);
     }
 
