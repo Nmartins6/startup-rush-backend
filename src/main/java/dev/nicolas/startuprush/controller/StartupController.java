@@ -1,6 +1,8 @@
 package dev.nicolas.startuprush.controller;
 
+import dev.nicolas.startuprush.dto.StartupReportDTO;
 import dev.nicolas.startuprush.model.Startup;
+import dev.nicolas.startuprush.model.StartupBattle;
 import dev.nicolas.startuprush.service.StartupService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +33,11 @@ public class StartupController {
     public ResponseEntity<Void> clearAll() {
         startupService.clearAllStartups();
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/ranking")
+    public ResponseEntity<List<StartupReportDTO>> getRanking() {
+        return ResponseEntity.ok(startupService.getRankingReport());
     }
 
 }

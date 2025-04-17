@@ -6,6 +6,8 @@ import dev.nicolas.startuprush.service.BattleService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/battles")
 public class StartupBattleController {
@@ -25,6 +27,12 @@ public class StartupBattleController {
     @GetMapping("/draw")
     public ResponseEntity<StartupBattle> createRandomBattle() {
         return ResponseEntity.ok(battleService.createRandomBattle());
+    }
+
+
+    @GetMapping("/pending")
+    public ResponseEntity<List<StartupBattle>> getPendingBattles() {
+        return ResponseEntity.ok(battleService.getPendingBattles());
     }
 
 }

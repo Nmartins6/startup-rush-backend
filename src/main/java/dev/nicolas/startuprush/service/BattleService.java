@@ -55,6 +55,8 @@ public class BattleService {
     }
 
     private int calculateAndApplyEvents(Startup startup, java.util.List<EventType> events) {
+        if(events == null) return 0;
+
         int total = 0;
         for(EventType event : events) {
             total += event.getPoints();
@@ -77,19 +79,24 @@ public class BattleService {
     }
 
     public StartupBattle createRandomBattle() {
-        List<Startup> pair = startupRepository.findAll();
-        Collections.shuffle(pair);
+        List<Startup> allStartups = startupRepository.findAll();
 
-        if (pair.size() < 2) {
-            throw new IllegalStateException("Not enough startup to create a battle");
+        if (allStartups.size() < 4 || allStartups.size() > 8 || allStartups.size() % 2 != 0) {
+            throw new IllegalStateException("You must have between 4 and 8 startups, and the total must be even to start the tournament.");
         }
 
+        Collections.shuffle(allStartups);
+
         StartupBattle battle = StartupBattle.builder()
-                .startupA(pair.get(0))
-                .startupB(pair.get(1))
+                .startupA(allStartups.get(0))
+                .startupB(allStartups.get(1))
                 .completed(false)
                 .build();
 
-            return battleRepository.save(battle);
+        return battleRepository.save(battle);
+    }
+
+    public List<StartupBattle> getPendingBattles() {
+        return battleRepository.findByCompletedFalse();
     }
 }

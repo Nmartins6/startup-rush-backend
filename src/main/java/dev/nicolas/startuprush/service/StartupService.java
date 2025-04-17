@@ -1,11 +1,14 @@
 package dev.nicolas.startuprush.service;
 
+import dev.nicolas.startuprush.dto.StartupReportDTO;
 import dev.nicolas.startuprush.model.Startup;
 import dev.nicolas.startuprush.repository.StartupRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class StartupService {
@@ -46,6 +49,22 @@ public class StartupService {
 
         Collections.shuffle(all);
         return all.subList(0,2);
+    }
+
+    public List<StartupReportDTO> getRankingReport() {
+        return startupRepository.findAll().stream()
+                .map(startup -> StartupReportDTO.builder()
+                        .name(startup.getName())
+                        .slogan(startup.getSlogan())
+                        .score(startup.getScore())
+                        .pitchCount(startup.getPitchCount())
+                        .bugsCount(startup.getBugsCount())
+                        .userTractionCount(startup.getUserTractionCount())
+                        .investorAngerCount(startup.getInvestorAngerCount())
+                        .fakeNewsCount(startup.getFakeNewsCount())
+                        .build())
+                .sorted(Comparator.comparingInt(StartupReportDTO::getScore).reversed())
+                .collect(Collectors.toList());
     }
 
 }
