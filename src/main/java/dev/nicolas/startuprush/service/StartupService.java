@@ -2,7 +2,11 @@ package dev.nicolas.startuprush.service;
 
 import dev.nicolas.startuprush.model.Startup;
 import dev.nicolas.startuprush.repository.StartupRepository;
+import org.springframework.stereotype.Service;
 
+import java.util.List;
+
+@Service
 public class StartupService {
     private final StartupRepository startupRepository;
 
@@ -24,7 +28,12 @@ public class StartupService {
         return count >= 4 && count <= 8 && count%2 == 0;
     }
 
+    public List<Startup> getAllStartups() {
+        return startupRepository.findAll();
+    }
+
     public void clearAllStartups() {
         startupRepository.deleteAll();
     }
+
 }
