@@ -24,12 +24,12 @@ public class StartupService {
         if (count >= 8) {
             throw new IllegalStateException("Cannot register more than 8 startups");
         }
-        return startupRepository.save(startup);
-    }
 
-    public boolean isValidStartupCount() {
-        long count = startupRepository.count();
-        return count >= 4 && count <= 8 && count%2 == 0;
+        if (startupRepository.existsByName(startup.getName())) {
+            throw new IllegalArgumentException("A startup with this name already exists.");
+        }
+
+        return startupRepository.save(startup);
     }
 
     public List<Startup> getAllStartups() {

@@ -40,4 +40,9 @@ public class StartupController {
         return ResponseEntity.ok(startupService.getRankingReport());
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
 }
