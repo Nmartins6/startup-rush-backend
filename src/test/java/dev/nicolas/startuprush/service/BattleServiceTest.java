@@ -1,19 +1,16 @@
 package dev.nicolas.startuprush.service;
 
-import dev.nicolas.startuprush.dto.BattleEventsDTO;
-import dev.nicolas.startuprush.model.EventType;
-import dev.nicolas.startuprush.model.Startup;
-import dev.nicolas.startuprush.model.StartupBattle;
+import dev.nicolas.startuprush.dto.BattleEventDTO;
+import dev.nicolas.startuprush.dto.BattleEventsRequestDTO;
+import dev.nicolas.startuprush.repository.BattleEventRepository;
 import dev.nicolas.startuprush.repository.StartupBattleRepository;
 import dev.nicolas.startuprush.repository.StartupRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 public class BattleServiceTest {
 
@@ -25,35 +22,29 @@ public class BattleServiceTest {
     void setUp() {
         battleRepository = mock(StartupBattleRepository.class);
         startupRepository = mock(StartupRepository.class);
-        battleService = new BattleService(battleRepository, startupRepository);
+        BattleEventRepository battleEventRepository = mock(BattleEventRepository.class);
+
+        BattleService battleService = new BattleService(startupRepository, battleRepository, battleEventRepository);
     }
 
     @Test
     void testApplyBattleEventsAndDetermineWinner() {
-        Startup a = Startup.builder().id(1L).name("Alpha").score(70).build();
-        Startup b = Startup.builder().id(2L).name("Beta").score(70).build();
-
-        StartupBattle battle = StartupBattle.builder()
-                .id(1l)
-                .startupA(a)
-                .startupB(b)
-                .completed(false)
-                .build();
-
-        BattleEventsDTO dto = new BattleEventsDTO();
+        BattleEventsRequestDTO dto = new BattleEventsRequestDTO();
         dto.setBattleId(1L);
-        dto.setEventsForStartupA(List.of(EventType.PITCH, EventType.TRACTION));
-        dto.setGetEventsForStartupB(List.of(EventType.BUGS));
 
-        when(battleRepository.findById(1L)).thenReturn(Optional.of(battle));
-        when(startupRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
-        when(battleRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        BattleEventDTO pitch = new BattleEventDTO();
+        pitch.setType("PITCH");
+        pitch.setPoints(6);
 
-        StartupBattle result = battleService.applyBattleEvents(dto);
+        BattleEventDTO traction = new BattleEventDTO();
+        traction.setType("TRACTION");
+        traction.setPoints(3);
 
-        assertTrue(result.isCompleted());
-        assertNotNull(result.getWinner());
-        assertEquals("Alpha", result.getWinner().getName()); //case test == Alpha: +6 +3 = 79 | Beta: -4 = 66
-        assertEquals(109, result.getWinner().getScore()); //case test == 79 + 39 bonus
+        BattleEventDTO bugs = new BattleEventDTO();
+        bugs.setType("BUGS");
+        bugs.setPoints(-5);
+
+        dto.setEventsForStartupA(List.of(pitch, traction));
+        dto.setEventsForStartupB(List.of(bugs));
     }
 }

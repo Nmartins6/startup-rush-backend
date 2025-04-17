@@ -19,6 +19,9 @@ public class StartupBattle {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
+    private int round = 1;
+
     @ManyToOne
     private Startup startupA;
 

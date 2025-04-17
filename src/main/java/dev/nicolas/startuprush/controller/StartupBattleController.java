@@ -1,6 +1,6 @@
 package dev.nicolas.startuprush.controller;
 
-import dev.nicolas.startuprush.dto.BattleEventsDTO;
+import dev.nicolas.startuprush.dto.BattleEventsRequestDTO;
 import dev.nicolas.startuprush.model.StartupBattle;
 import dev.nicolas.startuprush.service.BattleService;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +19,8 @@ public class StartupBattleController {
     }
 
     @PostMapping("/events")
-    public ResponseEntity<StartupBattle> applyBattleEvents(@RequestBody BattleEventsDTO dto) {
-        StartupBattle result = battleService.applyBattleEvents(dto);
-        return ResponseEntity.ok(result);
+    public ResponseEntity<StartupBattle> applyBattleEvents(@RequestBody BattleEventsRequestDTO request) {
+        return ResponseEntity.ok(battleService.applyBattleEvents(request));
     }
 
     @GetMapping("/draw")
@@ -29,10 +28,13 @@ public class StartupBattleController {
         return ResponseEntity.ok(battleService.createRandomBattle());
     }
 
-
     @GetMapping("/pending")
     public ResponseEntity<List<StartupBattle>> getPendingBattles() {
         return ResponseEntity.ok(battleService.getPendingBattles());
     }
 
+    @PostMapping("/round/advance")
+    public ResponseEntity<List<StartupBattle>> advanceRound() {
+        return ResponseEntity.ok(battleService.startNextRound());
+    }
 }

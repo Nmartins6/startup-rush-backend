@@ -1,95 +1,111 @@
 package dev.nicolas.startuprush.service;
 
-import dev.nicolas.startuprush.dto.BattleEventsDTO;
-import dev.nicolas.startuprush.model.EventType;
+import dev.nicolas.startuprush.dto.BattleEventDTO;
+import dev.nicolas.startuprush.dto.BattleEventsRequestDTO;
+import dev.nicolas.startuprush.model.BattleEvent;
 import dev.nicolas.startuprush.model.Startup;
 import dev.nicolas.startuprush.model.StartupBattle;
+import dev.nicolas.startuprush.repository.BattleEventRepository;
 import dev.nicolas.startuprush.repository.StartupBattleRepository;
 import dev.nicolas.startuprush.repository.StartupRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class BattleService {
+
+    private final BattleEventRepository battleEventRepository;
+
+    public BattleService(StartupRepository startupRepository,
+                         StartupBattleRepository battleRepository, BattleEventRepository battleEventRepository) {
+        this.startupRepository = startupRepository;
+        this.battleRepository = battleRepository;
+        this.battleEventRepository = battleEventRepository;
+    }
 
     private final StartupBattleRepository battleRepository;
     private final StartupRepository startupRepository;
     private final Random random = new Random();
 
-    public BattleService(StartupBattleRepository battleRepository, StartupRepository startupRepository) {
-        this.battleRepository = battleRepository;
-        this.startupRepository = startupRepository;
-    }
-
-    public StartupBattle applyBattleEvents(BattleEventsDTO dto) {
-        StartupBattle battle = battleRepository.findById(dto.getBattleId())
+    public StartupBattle applyBattleEvents(BattleEventsRequestDTO request) {
+        StartupBattle battle = battleRepository.findById(request.getBattleId())
                 .orElseThrow(() -> new RuntimeException("Battle not found"));
 
-        Startup a = battle.getStartupA();
-        Startup b = battle.getStartupB();
+        Startup startupA = battle.getStartupA();
+        Startup startupB = battle.getStartupB();
 
-        int scoreA = calculateAndApplyEvents(a, dto.getEventsForStartupA());
-        int scoreB = calculateAndApplyEvents(b, dto.getGetEventsForStartupB());
+        int updatedScoreA = applyEventsToStartup(startupA, request.getEventsForStartupA(), battle);
+        int updatedScoreB = applyEventsToStartup(startupB, request.getEventsForStartupB(), battle);
 
-        if (scoreA == scoreB) {
-            if (random.nextBoolean()) {
-                scoreA += 2;
-            } else {
-                scoreB += 2;
-            }
+        startupA.setScore(updatedScoreA);
+        startupB.setScore(updatedScoreB);
+
+        if(updatedScoreA > updatedScoreB) {
+            battle.setWinner(startupA);
+            startupA.setScore(startupA.getScore() + 30);
+        } else if (updatedScoreB > updatedScoreA) {
+            battle.setWinner(startupB);
+            startupB.setScore(startupB.getScore() + 30);
+        } else {
+            Startup winner = new Random().nextBoolean() ? startupA : startupB;
+            battle.setWinner(winner);
+            winner.setScore(winner.getScore() + 30);
         }
 
-        Startup winner = scoreA > scoreB ? a : b;
-        winner.setScore(winner.getScore() + 30);
-
-        battle.setWinner(winner);
         battle.setCompleted(true);
 
-        startupRepository.save(a);
-        startupRepository.save(b);
+        startupRepository.save(startupA);
+        startupRepository.save(startupB);
 
         return battleRepository.save(battle);
     }
 
-    private int calculateAndApplyEvents(Startup startup, java.util.List<EventType> events) {
-        if(events == null) return 0;
+    private int applyEventsToStartup(Startup startup, List<BattleEventDTO> events, StartupBattle battle) {
+        if (events == null || events.isEmpty()) return startup.getScore();
 
-        int total = 0;
-        for(EventType event : events) {
-            total += event.getPoints();
-            incrementEventCount(startup, event);
+        int totalPoints = 0;
+
+        for (BattleEventDTO dto : events) {
+            BattleEvent event = BattleEvent.builder()
+                    .type(dto.getType())
+                    .points(dto.getPoints())
+                    .startup(startup)
+                    .battle(battle)
+                    .build();
+
+            totalPoints += dto.getPoints();
+            battleEventRepository.save(event);
         }
 
-        startup.setScore(startup.getScore() + total);
-
-        return startup.getScore();
-    }
-
-    private void incrementEventCount(Startup startup, EventType event) {
-        switch (event) {
-            case PITCH -> startup.setPitchCount(startup.getPitchCount() +1);
-            case BUGS -> startup.setBugsCount(startup.getBugsCount() +1);
-            case TRACTION -> startup.setBugsCount(startup.getUserTractionCount() +1);
-            case INVESTOR_ANGRY -> startup.setInvestorAngerCount(startup.getInvestorAngerCount() + 1);
-            case FAKE_NEWS -> startup.setFakeNewsCount(startup.getFakeNewsCount() +1);
-        }
+        return startup.getScore() + totalPoints;
     }
 
     public StartupBattle createRandomBattle() {
-        List<Startup> allStartups = startupRepository.findAll();
+        int currentRound = battleRepository.findMaxRound().orElse(0);
 
-        if (allStartups.size() < 4 || allStartups.size() > 8 || allStartups.size() % 2 != 0) {
-            throw new IllegalStateException("You must have between 4 and 8 startups, and the total must be even to start the tournament.");
+        List<StartupBattle> existingBattles = battleRepository.findByRound(currentRound);
+
+        Set<Long> usedStartupIds = existingBattles.stream()
+                .flatMap(b -> Stream.of(b.getStartupA().getId(), b.getStartupB().getId()))
+                .collect(Collectors.toSet());
+
+        List<Startup> availableStartups = startupRepository.findAll().stream()
+                .filter(s -> !usedStartupIds.contains(s.getId()))
+                .collect(Collectors.toList());
+
+        if (availableStartups.size() < 2) {
+            throw new IllegalStateException("Not enough available startups to create a new battle.");
         }
 
-        Collections.shuffle(allStartups);
+        Collections.shuffle(availableStartups);
 
         StartupBattle battle = StartupBattle.builder()
-                .startupA(allStartups.get(0))
-                .startupB(allStartups.get(1))
+                .startupA(availableStartups.get(0))
+                .startupB(availableStartups.get(1))
+                .round(currentRound)
                 .completed(false)
                 .build();
 
@@ -98,5 +114,47 @@ public class BattleService {
 
     public List<StartupBattle> getPendingBattles() {
         return battleRepository.findByCompletedFalse();
+    }
+
+    public List<StartupBattle> startNextRound() {
+        int lastRound = battleRepository.findMaxRound().orElse(0);
+
+        List<StartupBattle> lastRoundBattles = battleRepository.findByRound(lastRound);
+
+        boolean allCompleted = lastRoundBattles.stream().allMatch(StartupBattle::isCompleted);
+        if (!allCompleted) {
+            throw new IllegalStateException("All battles from round " + lastRound + " must be completed.");
+        }
+
+        List<Startup> winners = lastRoundBattles.stream()
+                .map(StartupBattle::getWinner)
+                .collect(Collectors.toList());
+
+        if (winners.size() < 2 || winners.size() % 2 != 0) {
+            throw new IllegalStateException("You need an even number of winners (at least 2) to create the next round.");
+        }
+
+        Collections.shuffle(winners);
+        List<StartupBattle> newBattles = new ArrayList<>();
+
+        for (int i = 0; i < winners.size(); i += 2) {
+            Startup startupA = winners.get(i);
+            Startup startupB = winners.get(i + 1);
+
+            if (startupA.equals(startupB)) {
+                throw new IllegalStateException("Cannot create a battle with the same startup on both sides");
+            }
+
+            StartupBattle battle = StartupBattle.builder()
+                    .startupA(startupA)
+                    .startupB(startupB)
+                    .round(lastRound + 1)
+                    .completed(false)
+                    .build();
+
+            newBattles.add(battleRepository.save(battle));
+        }
+
+        return newBattles;
     }
 }
