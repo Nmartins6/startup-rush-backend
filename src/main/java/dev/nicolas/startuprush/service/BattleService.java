@@ -8,6 +8,8 @@ import dev.nicolas.startuprush.repository.StartupBattleRepository;
 import dev.nicolas.startuprush.repository.StartupRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 @Service
@@ -72,5 +74,22 @@ public class BattleService {
             case INVESTOR_ANGRY -> startup.setInvestorAngerCount(startup.getInvestorAngerCount() + 1);
             case FAKE_NEWS -> startup.setFakeNewsCount(startup.getFakeNewsCount() +1);
         }
+    }
+
+    public StartupBattle createRandomBattle() {
+        List<Startup> pair = startupRepository.findAll();
+        Collections.shuffle(pair);
+
+        if (pair.size() < 2) {
+            throw new IllegalStateException("Not enough startup to create a battle");
+        }
+
+        StartupBattle battle = StartupBattle.builder()
+                .startupA(pair.get(0))
+                .startupB(pair.get(1))
+                .completed(false)
+                .build();
+
+            return battleRepository.save(battle);
     }
 }

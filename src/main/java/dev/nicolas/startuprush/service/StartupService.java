@@ -4,6 +4,7 @@ import dev.nicolas.startuprush.model.Startup;
 import dev.nicolas.startuprush.repository.StartupRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -34,6 +35,17 @@ public class StartupService {
 
     public void clearAllStartups() {
         startupRepository.deleteAll();
+    }
+
+    public List<Startup> drawTwoRandomStartups() {
+        List<Startup> all = startupRepository.findAll();
+
+        if(all.size() < 2) {
+            throw new IllegalStateException("At least two startups are required to start a battle");
+        }
+
+        Collections.shuffle(all);
+        return all.subList(0,2);
     }
 
 }

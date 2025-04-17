@@ -4,10 +4,7 @@ import dev.nicolas.startuprush.dto.BattleEventsDTO;
 import dev.nicolas.startuprush.model.StartupBattle;
 import dev.nicolas.startuprush.service.BattleService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/battles")
@@ -23,6 +20,11 @@ public class StartupBattleController {
     public ResponseEntity<StartupBattle> applyBattleEvents(@RequestBody BattleEventsDTO dto) {
         StartupBattle result = battleService.applyBattleEvents(dto);
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/draw")
+    public ResponseEntity<StartupBattle> createRandomBattle() {
+        return ResponseEntity.ok(battleService.createRandomBattle());
     }
 
 }
