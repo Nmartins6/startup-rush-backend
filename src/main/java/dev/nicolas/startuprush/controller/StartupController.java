@@ -1,9 +1,11 @@
 package dev.nicolas.startuprush.controller;
 
+import dev.nicolas.startuprush.dto.StartupDTO;
 import dev.nicolas.startuprush.dto.StartupReportDTO;
 import dev.nicolas.startuprush.model.Startup;
 import dev.nicolas.startuprush.model.StartupBattle;
 import dev.nicolas.startuprush.service.StartupService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,8 +22,8 @@ public class StartupController {
     }
 
     @PostMapping
-    public ResponseEntity<Startup> register(@RequestBody Startup startup) {
-        return ResponseEntity.ok(startupService.registerStartup(startup));
+    public ResponseEntity<Startup> register(@RequestBody StartupDTO dto) {
+        return ResponseEntity.ok(startupService.registerStartup(dto));
     }
 
     @GetMapping

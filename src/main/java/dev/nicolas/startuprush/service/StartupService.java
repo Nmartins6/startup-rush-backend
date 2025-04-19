@@ -1,5 +1,6 @@
 package dev.nicolas.startuprush.service;
 
+import dev.nicolas.startuprush.dto.StartupDTO;
 import dev.nicolas.startuprush.dto.StartupReportDTO;
 import dev.nicolas.startuprush.model.Startup;
 import dev.nicolas.startuprush.repository.StartupRepository;
@@ -19,28 +20,34 @@ public class StartupService {
         this.startupRepository = startupRepository;
     }
 
-    public Startup registerStartup(Startup startup) {
+    public Startup registerStartup(StartupDTO dto) {
         long count = startupRepository.count();
         if (count >= 8) {
             throw new IllegalStateException("Cannot register more than 8 startups");
         }
 
-        if (startupRepository.existsByName(startup.getName())) {
+        if (startupRepository.existsByName(dto.getName())) {
             throw new IllegalArgumentException("A startup with this name already exists.");
         }
 
-        if (startup.getName() == null || startup.getName().trim().isEmpty()) {
+        if (dto.getName() == null || dto.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Startup name cannot be empty.");
         }
 
-        if (startup.getSlogan() == null || startup.getSlogan().trim().isEmpty()) {
+        if (dto.getSlogan() == null || dto.getSlogan().trim().isEmpty()) {
             throw new IllegalArgumentException("Startup slogan cannot be empty.");
         }
 
         int currentYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);
-        if (startup.getFoundationYear() < 1800 || startup.getFoundationYear() > currentYear) {
+        if (dto.getFoundationYear() < 1800 || dto.getFoundationYear() > currentYear) {
             throw new IllegalArgumentException("Invalid foundation year. It must be between 1800 and " + currentYear + ".");
         }
+
+        Startup startup = Startup.builder()
+                .name(dto.getName())
+                .slogan(dto.getSlogan())
+                .foundationYear(dto.getFoundationYear())
+                .build();
 
         return startupRepository.save(startup);
     }
