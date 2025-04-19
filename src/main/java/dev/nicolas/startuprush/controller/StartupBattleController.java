@@ -1,6 +1,7 @@
 package dev.nicolas.startuprush.controller;
 
 import dev.nicolas.startuprush.dto.BattleEventsRequestDTO;
+import dev.nicolas.startuprush.dto.RoundReportDTO;
 import dev.nicolas.startuprush.model.StartupBattle;
 import dev.nicolas.startuprush.service.BattleService;
 import org.springframework.http.ResponseEntity;
@@ -36,5 +37,10 @@ public class StartupBattleController {
     @PostMapping("/round/advance")
     public ResponseEntity<List<StartupBattle>> advanceRound() {
         return ResponseEntity.ok(battleService.startNextRound());
+    }
+
+    @GetMapping("/report")
+    public ResponseEntity<List<RoundReportDTO>> getBattleReport() {
+        return ResponseEntity.ok(battleService.generateRoundReport());
     }
 }

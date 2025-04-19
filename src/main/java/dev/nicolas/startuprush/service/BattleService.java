@@ -1,7 +1,6 @@
 package dev.nicolas.startuprush.service;
 
-import dev.nicolas.startuprush.dto.BattleEventDTO;
-import dev.nicolas.startuprush.dto.BattleEventsRequestDTO;
+import dev.nicolas.startuprush.dto.*;
 import dev.nicolas.startuprush.model.BattleEvent;
 import dev.nicolas.startuprush.model.Startup;
 import dev.nicolas.startuprush.model.StartupBattle;
@@ -170,4 +169,60 @@ public class BattleService {
 
         return newBattles;
     }
+
+    public List<RoundReportDTO> generateRoundReport() {
+        List<RoundReportDTO> roundReports = new ArrayList<>();
+
+        List<Integer> rounds = battleRepository.findAll().stream()
+                .map(StartupBattle::getRound)
+                .distinct()
+                .sorted()
+                .toList();
+
+        for (Integer round : rounds) {
+            List<StartupBattle> battles = battleRepository.findByRound(round);
+            List<BattleReportDTO> battleReports = new ArrayList<>();
+
+            for (StartupBattle battle : battles) {
+                List<BattleEvent> eventsA = battleEventRepository.findByStartupId(battle.getStartupA().getId())
+                        .stream()
+                        .filter(e -> e.getBattle().getId().equals(battle.getId()))
+                        .toList();
+
+                List<BattleEvent> eventsB = battleEventRepository.findByStartupId(battle.getStartupB().getId())
+                        .stream()
+                        .filter(e -> e.getBattle().getId().equals(battle.getId()))
+                        .toList();
+
+                BattleReportDTO battleDTO = BattleReportDTO.builder()
+                        .battleId(battle.getId())
+                        .startupA(battle.getStartupA().getName())
+                        .startupB(battle.getStartupB().getName())
+                        .winner(battle.getWinner() != null ? battle.getWinner().getName() : null)
+                        .eventsA(eventsA.stream()
+                                .map(e -> BattleEventReportDTO.builder()
+                                        .type(e.getType())
+                                        .points(e.getPoints())
+                                        .build())
+                                .toList())
+                        .eventsB(eventsB.stream()
+                                .map(e -> BattleEventReportDTO.builder()
+                                        .type(e.getType())
+                                        .points(e.getPoints())
+                                        .build())
+                                .toList())
+                        .build();
+
+                battleReports.add(battleDTO);
+            }
+
+            roundReports.add(RoundReportDTO.builder()
+                    .round(round)
+                    .battles(battleReports)
+                    .build());
+        }
+
+        return roundReports;
+    }
+
 }
