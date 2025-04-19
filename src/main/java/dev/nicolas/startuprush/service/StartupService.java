@@ -47,6 +47,7 @@ public class StartupService {
                 .name(dto.getName())
                 .slogan(dto.getSlogan())
                 .foundationYear(dto.getFoundationYear())
+                .score(70)
                 .build();
 
         return startupRepository.save(startup);

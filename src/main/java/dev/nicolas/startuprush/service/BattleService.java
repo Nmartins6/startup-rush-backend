@@ -8,6 +8,7 @@ import dev.nicolas.startuprush.model.StartupBattle;
 import dev.nicolas.startuprush.repository.BattleEventRepository;
 import dev.nicolas.startuprush.repository.StartupBattleRepository;
 import dev.nicolas.startuprush.repository.StartupRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -30,6 +31,7 @@ public class BattleService {
     private final StartupRepository startupRepository;
     private final Random random = new Random();
 
+    @Transactional
     public StartupBattle applyBattleEvents(BattleEventsRequestDTO request) {
         StartupBattle battle = battleRepository.findById(request.getBattleId())
                 .orElseThrow(() -> new RuntimeException("Battle not found"));
@@ -76,7 +78,7 @@ public class BattleService {
             );
 
             if (alreadyExists) {
-                throw new IllegalArgumentException("Startup '" + startup.getName() + "' já recebeu o evento '" + dto.getType() + "' nesta batalha.");
+                throw new IllegalArgumentException("Startup '" + startup.getName() + "' has already received the event '" + dto.getType() + "' in this battle.");
             }
 
             BattleEvent event = BattleEvent.builder()
@@ -126,6 +128,7 @@ public class BattleService {
         return battleRepository.findByCompletedFalse();
     }
 
+    @Transactional
     public List<StartupBattle> startNextRound() {
         int lastRound = battleRepository.findMaxRound().orElse(0);
 

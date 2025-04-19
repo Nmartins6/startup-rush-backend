@@ -1,11 +1,12 @@
 package dev.nicolas.startuprush.service;
 
+import dev.nicolas.startuprush.dto.StartupDTO;
 import dev.nicolas.startuprush.model.Startup;
 import dev.nicolas.startuprush.repository.StartupRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
+import java.util.Calendar;
 
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,13 +24,29 @@ class StartupServiceTest {
 
     @Test
     void testRegisterStartupWithinLimit() {
-        Startup startup = new Startup("TestName", "TestSlogan", 2020);
-        when(startupRepository.count()).thenReturn(4L);
-        when(startupRepository.save(startup)).thenReturn(startup);
+        StartupDTO dto = new StartupDTO();
+        dto.setName("TestName");
+        dto.setSlogan("TestSlogan");
+        dto.setFoundationYear(2020);
 
-        Startup saved = startupService.registerStartup(startup);
+        when(startupRepository.count()).thenReturn(4L);
+        when(startupRepository.existsByName("TestName")).thenReturn(false);
+
+        Startup expectedStartup = Startup.builder()
+                .name("TestName")
+                .slogan("TestSlogan")
+                .foundationYear(2020)
+                .score(70)
+                .build();
+
+        when(startupRepository.save(any(Startup.class))).thenReturn(expectedStartup);
+
+        Startup saved = startupService.registerStartup(dto);
 
         assertEquals("TestName", saved.getName());
-        verify(startupRepository).save(startup);
+        assertEquals("TestSlogan", saved.getSlogan());
+        assertEquals(2020, saved.getFoundationYear());
+
+        verify(startupRepository).save(any(Startup.class));
     }
 }
