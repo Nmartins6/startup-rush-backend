@@ -234,4 +234,26 @@ public class BattleService {
         return roundReports;
     }
 
+    public Startup getChampion() {
+        List<StartupBattle> pendingBattles = battleRepository.findByCompletedFalse();
+        if (!pendingBattles.isEmpty()) {
+            throw new IllegalStateException("There are still pending battles.");
+        }
+
+        int maxRound = battleRepository.findMaxRound().orElse(0);
+        List<Startup> finalists = battleRepository.findByRound(maxRound).stream()
+                .filter(StartupBattle::isCompleted)
+                .map(StartupBattle::getWinner)
+                .distinct()
+                .collect(Collectors.toList());
+
+        if (finalists.size() > 1) {
+            throw new IllegalStateException("The tournament is still ongoing.");
+        }
+
+        return finalists.stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("No champion could be determined."));
+    }
+
 }
