@@ -53,15 +53,19 @@ public class BattleService {
         } else {
             Startup winner = new Random().nextBoolean() ? startupA : startupB;
             winner.setScore(winner.getScore() + 2);
-            battle.setWinner(winner);
-            winner.setScore(winner.getScore() + 30);
+
+            Startup persistedWinner = startupRepository.save(winner);
+
+            battle.setWinner(persistedWinner);
+            persistedWinner.setScore(persistedWinner.getScore() + 30);
 
             BattleEvent sharkFightEvent = BattleEvent.builder()
                     .type("SHARK_FIGHT")
                     .points(2)
-                    .startup(winner)
+                    .startup(persistedWinner)
                     .battle(battle)
                     .build();
+
             battleEventRepository.save(sharkFightEvent);
         }
 

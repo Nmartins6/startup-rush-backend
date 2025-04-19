@@ -1,6 +1,7 @@
 package dev.nicolas.startuprush.service;
 
 import dev.nicolas.startuprush.dto.*;
+import dev.nicolas.startuprush.model.BattleEvent;
 import dev.nicolas.startuprush.model.Startup;
 import dev.nicolas.startuprush.model.StartupBattle;
 import dev.nicolas.startuprush.repository.BattleEventRepository;
@@ -99,26 +100,27 @@ public class StartupService {
                 .orElseThrow(() -> new IllegalArgumentException("Startup not found"));
 
         List<StartupBattle> battles = battleRepository.findAll().stream()
-                .filter(b -> b.getStartupA().getId() == (startupId) || b.getStartupB().getId() == (startupId))
+                .filter(b -> b.getStartupA().getId() == startupId || b.getStartupB().getId() == startupId)
                 .toList();
+
+        List<BattleEvent> allBattleEvents = battleEventRepository.findByStartupId(startupId);
 
         List<StartupBattleHistoryDTO> battleHistoryList = new ArrayList<>();
 
         for (StartupBattle battle : battles) {
-            boolean isStartupA = battle.getStartupA().getId() == (startupId);
+            boolean isStartupA = battle.getStartupA().getId() == startupId;
             Startup opponent = isStartupA ? battle.getStartupB() : battle.getStartupA();
 
             String result = "PENDING";
             if (battle.isCompleted()) {
-                if (battle.getWinner() != null && battle.getWinner().getId() == (startupId)) {
+                if (battle.getWinner() != null && battle.getWinner().getId() == startupId) {
                     result = "WIN";
                 } else {
                     result = "LOSS";
                 }
             }
 
-            List<StartupHistoryEventDTO> events = battleEventRepository.findByStartupId(startupId)
-                    .stream()
+            List<StartupHistoryEventDTO> events = allBattleEvents.stream()
                     .filter(e -> e.getBattle().getId().equals(battle.getId()))
                     .map(e -> StartupHistoryEventDTO.builder()
                             .type(e.getType())
@@ -135,6 +137,7 @@ public class StartupService {
 
             battleHistoryList.add(battleDTO);
         }
+
         return StartupHistoryDTO.builder()
                 .startup(startup.getName())
                 .battles(battleHistoryList)
