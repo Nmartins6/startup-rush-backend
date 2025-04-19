@@ -1,6 +1,7 @@
 package dev.nicolas.startuprush.controller;
 
 import dev.nicolas.startuprush.dto.BattleEventsRequestDTO;
+import dev.nicolas.startuprush.dto.ChampionDTO;
 import dev.nicolas.startuprush.dto.RoundReportDTO;
 import dev.nicolas.startuprush.model.Startup;
 import dev.nicolas.startuprush.model.StartupBattle;
@@ -48,11 +49,13 @@ public class StartupBattleController {
     }
 
     @GetMapping("/champion")
-    public ResponseEntity<Map<String, String>> getChampion() {
-        Startup champion = battleService.getChampion();
-        Map<String, String> response = new HashMap<>();
-        response.put("name", champion.getName());
-        response.put("slogan", champion.getSlogan());
-        return ResponseEntity.ok(response);
+    public ResponseEntity<ChampionDTO> getChampion() {
+        ChampionDTO champion = battleService.getChampion(); // já retorna DTO direto!
+        return ResponseEntity.ok(champion);
+    }
+
+    @PostMapping("/start-tournament")
+    public ResponseEntity<List<StartupBattle>> startTournament() {
+        return ResponseEntity.ok(battleService.startTournament());
     }
 }

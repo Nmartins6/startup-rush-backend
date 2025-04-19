@@ -7,9 +7,9 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-public class BattleEventDTO {
-    private String type;
-    private int points;
+@AllArgsConstructor
+public class ChampionDTO {
+    private String name;
+    private String slogan;
 }

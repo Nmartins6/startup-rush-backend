@@ -54,27 +54,34 @@ public class BattleService {
             Startup winner = new Random().nextBoolean() ? startupA : startupB;
             winner.setScore(winner.getScore() + 2);
 
-            Startup persistedWinner = startupRepository.save(winner);
-
-            battle.setWinner(persistedWinner);
-            persistedWinner.setScore(persistedWinner.getScore() + 30);
-
             BattleEvent sharkFightEvent = BattleEvent.builder()
                     .type("SHARK_FIGHT")
                     .points(2)
-                    .startup(persistedWinner)
+                    .startup(winner)
                     .battle(battle)
                     .build();
-
             battleEventRepository.save(sharkFightEvent);
+
+            winner.setScore(winner.getScore() + 30);
+            battle.setWinner(winner);
         }
 
         battle.setCompleted(true);
 
         startupRepository.save(startupA);
         startupRepository.save(startupB);
+        battleRepository.save(battle);
 
-        return battleRepository.save(battle);
+        int currentRound = battle.getRound();
+        boolean allCompleted = battleRepository.findAll().stream()
+                .filter(b -> b.getRound() == currentRound)
+                .allMatch(StartupBattle::isCompleted);
+
+        if (allCompleted) {
+            startNextRound();
+        }
+
+        return battle;
     }
 
     private int applyEventsToStartup(Startup startup, List<BattleEventDTO> events, StartupBattle battle) {
@@ -142,42 +149,51 @@ public class BattleService {
 
     @Transactional
     public List<StartupBattle> startNextRound() {
-        int lastRound = battleRepository.findMaxRound().orElse(0);
+        List<StartupBattle> allBattles = battleRepository.findAll();
 
-        List<StartupBattle> lastRoundBattles = battleRepository.findByRound(lastRound);
-
-        boolean allCompleted = lastRoundBattles.stream().allMatch(StartupBattle::isCompleted);
-        if (!allCompleted) {
-            throw new IllegalStateException("All battles from round " + lastRound + " must be completed.");
+        if (allBattles.isEmpty()) {
+            throw new IllegalStateException("No battles found.");
         }
 
-        List<Startup> winners = lastRoundBattles.stream()
+        int lastRound = allBattles.stream()
+                .mapToInt(StartupBattle::getRound)
+                .max()
+                .orElse(0);
+
+        boolean hasPending = allBattles.stream()
+                .anyMatch(b -> b.getRound() == lastRound && !b.isCompleted());
+
+        if (hasPending) {
+            throw new IllegalStateException("There are still pending battles.");
+        }
+
+        List<Startup> winners = new ArrayList<>(allBattles.stream()
+                .filter(b -> b.getRound() == lastRound && b.getWinner() != null)
                 .map(StartupBattle::getWinner)
-                .collect(Collectors.toList());
+                .toList());
+
+        if (winners.size() == 1) {
+            return Collections.emptyList();
+        }
 
         if (winners.size() < 2 || winners.size() % 2 != 0) {
             throw new IllegalStateException("You need an even number of winners (at least 2) to create the next round.");
         }
 
         Collections.shuffle(winners);
+        int newRound = lastRound + 1;
+
         List<StartupBattle> newBattles = new ArrayList<>();
 
         for (int i = 0; i < winners.size(); i += 2) {
-            Startup startupA = winners.get(i);
-            Startup startupB = winners.get(i + 1);
-
-            if (startupA.equals(startupB)) {
-                throw new IllegalStateException("Cannot create a battle with the same startup on both sides");
-            }
-
-            StartupBattle battle = StartupBattle.builder()
-                    .startupA(startupA)
-                    .startupB(startupB)
-                    .round(lastRound + 1)
+            StartupBattle newBattle = StartupBattle.builder()
+                    .startupA(winners.get(i))
+                    .startupB(winners.get(i + 1))
+                    .round(newRound)
                     .completed(false)
                     .build();
 
-            newBattles.add(battleRepository.save(battle));
+            newBattles.add(battleRepository.save(newBattle));
         }
 
         return newBattles;
@@ -238,26 +254,66 @@ public class BattleService {
         return roundReports;
     }
 
-    public Startup getChampion() {
-        List<StartupBattle> pendingBattles = battleRepository.findByCompletedFalse();
-        if (!pendingBattles.isEmpty()) {
+    public ChampionDTO getChampion() {
+        List<StartupBattle> allBattles = battleRepository.findAll();
+
+        boolean hasPending = allBattles.stream().anyMatch(b -> !b.isCompleted());
+        if (hasPending) {
             throw new IllegalStateException("There are still pending battles.");
         }
 
-        int maxRound = battleRepository.findMaxRound().orElse(0);
-        List<Startup> finalists = battleRepository.findByRound(maxRound).stream()
-                .filter(StartupBattle::isCompleted)
+        int lastRound = allBattles.stream()
+                .mapToInt(StartupBattle::getRound)
+                .max()
+                .orElse(0);
+
+        List<Startup> finalists = allBattles.stream()
+                .filter(b -> b.getRound() == lastRound)
                 .map(StartupBattle::getWinner)
-                .distinct()
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
-        if (finalists.size() > 1) {
+        if (finalists.size() != 1) {
             throw new IllegalStateException("The tournament is still ongoing.");
         }
 
-        return finalists.stream()
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("No champion could be determined."));
+        Startup champion = finalists.get(0);
+
+        return ChampionDTO.builder()
+                .name(champion.getName())
+                .slogan(champion.getSlogan())
+                .build();
+    }
+
+    @Transactional
+    public List<StartupBattle> startTournament() {
+        List<Startup> startups = startupRepository.findAll();
+        long battleCount = battleRepository.count();
+
+        if (battleCount > 0) {
+            throw new IllegalStateException("Tournament already started");
+        }
+
+        if (startups.size() < 4 || startups.size() > 8 || startups.size() % 2 != 0) {
+            throw new IllegalStateException("Number of startups must be between 4 and 8, and even.");
+        }
+
+        Collections.shuffle(startups);
+
+        List<StartupBattle> battles = new ArrayList<>();
+        int round = 0;
+
+        for (int i = 0; i < startups.size(); i += 2) {
+            StartupBattle battle = StartupBattle.builder()
+                    .startupA(startups.get(i))
+                    .startupB(startups.get(i + 1))
+                    .round(round)
+                    .completed(false)
+                    .build();
+            battles.add(battleRepository.save(battle));
+        }
+
+        return battles;
     }
 
 }
