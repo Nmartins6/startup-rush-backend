@@ -8,4 +8,5 @@ import java.util.List;
 public interface BattleEventRepository extends JpaRepository<BattleEvent, Long> {
     List<BattleEvent> findByStartupId(Long startupId);
     List<BattleEvent> findByBattleId(Long battleId);
+    boolean existsByStartupIdAndBattleIdAndType(Long startupId, Long battleId, String type);
 }

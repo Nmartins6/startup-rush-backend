@@ -69,6 +69,16 @@ public class BattleService {
         int totalPoints = 0;
 
         for (BattleEventDTO dto : events) {
+            boolean alreadyExists = battleEventRepository.existsByStartupIdAndBattleIdAndType(
+                    startup.getId(),
+                    battle.getId(),
+                    dto.getType()
+            );
+
+            if (alreadyExists) {
+                throw new IllegalArgumentException("Startup '" + startup.getName() + "' já recebeu o evento '" + dto.getType() + "' nesta batalha.");
+            }
+
             BattleEvent event = BattleEvent.builder()
                     .type(dto.getType())
                     .points(dto.getPoints())
