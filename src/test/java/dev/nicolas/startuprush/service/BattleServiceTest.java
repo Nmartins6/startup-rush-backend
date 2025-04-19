@@ -16,15 +16,17 @@ public class BattleServiceTest {
 
     private StartupBattleRepository battleRepository;
     private StartupRepository startupRepository;
+    private BattleEventRepository battleEventRepository;
+
     private BattleService battleService;
 
     @BeforeEach
     void setUp() {
-        battleRepository = mock(StartupBattleRepository.class);
         startupRepository = mock(StartupRepository.class);
-        BattleEventRepository battleEventRepository = mock(BattleEventRepository.class);
+        battleRepository = mock(StartupBattleRepository.class);
+        battleEventRepository = mock(BattleEventRepository.class);
 
-        BattleService battleService = new BattleService(startupRepository, battleRepository, battleEventRepository);
+        battleService = new BattleService(startupRepository, battleRepository, battleEventRepository);
     }
 
     @Test
@@ -37,14 +39,16 @@ public class BattleServiceTest {
         pitch.setPoints(6);
 
         BattleEventDTO traction = new BattleEventDTO();
-        traction.setType("TRACTION");
+        traction.setType("USER_TRACTION");
         traction.setPoints(3);
 
         BattleEventDTO bugs = new BattleEventDTO();
-        bugs.setType("BUGS");
-        bugs.setPoints(-5);
+        bugs.setType("BUG");
+        bugs.setPoints(-4);
 
         dto.setEventsForStartupA(List.of(pitch, traction));
         dto.setEventsForStartupB(List.of(bugs));
+
+        // TODO: Mock battle data, simulate score updates, assert winner and event counts
     }
 }

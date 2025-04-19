@@ -43,4 +43,5 @@ public class StartupBattleController {
     public ResponseEntity<List<RoundReportDTO>> getBattleReport() {
         return ResponseEntity.ok(battleService.generateRoundReport());
     }
+
 }

@@ -1,6 +1,7 @@
 package dev.nicolas.startuprush.controller;
 
 import dev.nicolas.startuprush.dto.StartupDTO;
+import dev.nicolas.startuprush.dto.StartupHistoryDTO;
 import dev.nicolas.startuprush.dto.StartupReportDTO;
 import dev.nicolas.startuprush.model.Startup;
 import dev.nicolas.startuprush.model.StartupBattle;
@@ -45,6 +46,11 @@ public class StartupController {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
+    @GetMapping("/{id}/history")
+    public ResponseEntity<StartupHistoryDTO> getStartupHistory(@PathVariable Long id) {
+        return ResponseEntity.ok(startupService.getStartupHistory(id));
     }
 
 }

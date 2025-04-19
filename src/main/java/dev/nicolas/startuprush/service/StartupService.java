@@ -1,11 +1,14 @@
 package dev.nicolas.startuprush.service;
 
-import dev.nicolas.startuprush.dto.StartupDTO;
-import dev.nicolas.startuprush.dto.StartupReportDTO;
+import dev.nicolas.startuprush.dto.*;
 import dev.nicolas.startuprush.model.Startup;
+import dev.nicolas.startuprush.model.StartupBattle;
+import dev.nicolas.startuprush.repository.BattleEventRepository;
+import dev.nicolas.startuprush.repository.StartupBattleRepository;
 import dev.nicolas.startuprush.repository.StartupRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -14,10 +17,13 @@ import java.util.stream.Collectors;
 @Service
 public class StartupService {
     private final StartupRepository startupRepository;
+    private final StartupBattleRepository battleRepository;
+    private final BattleEventRepository battleEventRepository;
 
-
-    public StartupService(StartupRepository startupRepository) {
+    public StartupService(StartupRepository startupRepository, StartupBattleRepository battleRepository, BattleEventRepository battleEventRepository) {
         this.startupRepository = startupRepository;
+        this.battleRepository = battleRepository;
+        this.battleEventRepository = battleEventRepository;
     }
 
     public Startup registerStartup(StartupDTO dto) {
@@ -88,4 +94,50 @@ public class StartupService {
                 .collect(Collectors.toList());
     }
 
+    public StartupHistoryDTO getStartupHistory(Long startupId) {
+        Startup startup = startupRepository.findById(startupId)
+                .orElseThrow(() -> new IllegalArgumentException("Startup not found"));
+
+        List<StartupBattle> battles = battleRepository.findAll().stream()
+                .filter(b -> b.getStartupA().getId() == (startupId) || b.getStartupB().getId() == (startupId))
+                .toList();
+
+        List<StartupBattleHistoryDTO> battleHistoryList = new ArrayList<>();
+
+        for (StartupBattle battle : battles) {
+            boolean isStartupA = battle.getStartupA().getId() == (startupId);
+            Startup opponent = isStartupA ? battle.getStartupB() : battle.getStartupA();
+
+            String result = "PENDING";
+            if (battle.isCompleted()) {
+                if (battle.getWinner() != null && battle.getWinner().getId() == (startupId)) {
+                    result = "WIN";
+                } else {
+                    result = "LOSS";
+                }
+            }
+
+            List<StartupHistoryEventDTO> events = battleEventRepository.findByStartupId(startupId)
+                    .stream()
+                    .filter(e -> e.getBattle().getId().equals(battle.getId()))
+                    .map(e -> StartupHistoryEventDTO.builder()
+                            .type(e.getType())
+                            .points(e.getPoints())
+                            .build())
+                    .toList();
+
+            StartupBattleHistoryDTO battleDTO = StartupBattleHistoryDTO.builder()
+                    .round(battle.getRound())
+                    .opponent(opponent.getName())
+                    .result(result)
+                    .events(events)
+                    .build();
+
+            battleHistoryList.add(battleDTO);
+        }
+        return StartupHistoryDTO.builder()
+                .startup(startup.getName())
+                .battles(battleHistoryList)
+                .build();
+    }
 }

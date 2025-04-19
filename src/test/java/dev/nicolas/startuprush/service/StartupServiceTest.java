@@ -2,6 +2,8 @@ package dev.nicolas.startuprush.service;
 
 import dev.nicolas.startuprush.dto.StartupDTO;
 import dev.nicolas.startuprush.model.Startup;
+import dev.nicolas.startuprush.repository.BattleEventRepository;
+import dev.nicolas.startuprush.repository.StartupBattleRepository;
 import dev.nicolas.startuprush.repository.StartupRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,12 +16,17 @@ import static org.junit.jupiter.api.Assertions.*;
 class StartupServiceTest {
 
     private StartupRepository startupRepository;
+    private StartupBattleRepository battleRepository;
+    private BattleEventRepository battleEventRepository;
     private StartupService startupService;
 
     @BeforeEach
     void setUp() {
         startupRepository = mock(StartupRepository.class);
-        startupService = new StartupService(startupRepository);
+        battleRepository = mock(StartupBattleRepository.class);
+        battleEventRepository = mock(BattleEventRepository.class);
+
+        startupService = new StartupService(startupRepository, battleRepository, battleEventRepository);
     }
 
     @Test
