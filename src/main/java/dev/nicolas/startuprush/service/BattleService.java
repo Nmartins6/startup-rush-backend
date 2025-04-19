@@ -44,7 +44,7 @@ public class BattleService {
         startupA.setScore(updatedScoreA);
         startupB.setScore(updatedScoreB);
 
-        if(updatedScoreA > updatedScoreB) {
+        if (updatedScoreA > updatedScoreB) {
             battle.setWinner(startupA);
             startupA.setScore(startupA.getScore() + 30);
         } else if (updatedScoreB > updatedScoreA) {
@@ -52,8 +52,17 @@ public class BattleService {
             startupB.setScore(startupB.getScore() + 30);
         } else {
             Startup winner = new Random().nextBoolean() ? startupA : startupB;
+            winner.setScore(winner.getScore() + 2);
             battle.setWinner(winner);
             winner.setScore(winner.getScore() + 30);
+
+            BattleEvent sharkFightEvent = BattleEvent.builder()
+                    .type("SHARK_FIGHT")
+                    .points(2)
+                    .startup(winner)
+                    .battle(battle)
+                    .build();
+            battleEventRepository.save(sharkFightEvent);
         }
 
         battle.setCompleted(true);
