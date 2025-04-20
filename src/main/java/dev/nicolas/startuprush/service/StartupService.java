@@ -85,11 +85,6 @@ public class StartupService {
                         .name(startup.getName())
                         .slogan(startup.getSlogan())
                         .score(startup.getScore())
-                        .pitchCount(startup.getPitchCount())
-                        .bugsCount(startup.getBugsCount())
-                        .userTractionCount(startup.getUserTractionCount())
-                        .investorAngerCount(startup.getInvestorAngerCount())
-                        .fakeNewsCount(startup.getFakeNewsCount())
                         .build())
                 .sorted(Comparator.comparingInt(StartupReportDTO::getScore).reversed())
                 .collect(Collectors.toList());

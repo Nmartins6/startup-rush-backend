@@ -22,12 +22,6 @@ public class Startup {
 
     private int score = 70;
 
-    private int pitchCount = 0;
-    private int bugsCount = 0;
-    private int userTractionCount = 0;
-    private int investorAngerCount = 0;
-    private int fakeNewsCount = 0;
-
     public Startup(String name, String slogan, int foundationYear) {
         this.name = name;
         this.slogan = slogan;
