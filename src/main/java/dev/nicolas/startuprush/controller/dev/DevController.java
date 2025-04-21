@@ -17,7 +17,7 @@ public class DevController {
     private final TournamentSeeder seeder;
     private final BattleService battleService;
 
-    public DevController(TournamentSeeder seeder) {
+    public DevController(TournamentSeeder seeder, BattleService battleService) {
         this.seeder = seeder;
         this.battleService = battleService;
     }
