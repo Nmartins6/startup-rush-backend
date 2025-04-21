@@ -320,6 +320,17 @@ public class BattleService {
                 .build();
     }
 
+    public List<PendingBattleDTO> getCompactPendingBattles() {
+        return battleRepository.findByCompletedFalse().stream()
+                .map(b -> new PendingBattleDTO(
+                        b.getId(),
+                        b.getStartupA().getName(),
+                        b.getStartupB() != null ? b.getStartupB().getName() : "BYE"
+                ))
+                .toList();
+    }
+
+
     @Transactional
     public List<StartupBattle> startTournament() {
         List<Startup> startups = startupRepository.findAll();

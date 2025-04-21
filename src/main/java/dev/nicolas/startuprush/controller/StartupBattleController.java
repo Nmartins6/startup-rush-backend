@@ -2,10 +2,12 @@ package dev.nicolas.startuprush.controller;
 
 import dev.nicolas.startuprush.dto.BattleEventsRequestDTO;
 import dev.nicolas.startuprush.dto.ChampionDTO;
+import dev.nicolas.startuprush.dto.PendingBattleDTO;
 import dev.nicolas.startuprush.dto.RoundReportDTO;
 import dev.nicolas.startuprush.model.Startup;
 import dev.nicolas.startuprush.model.StartupBattle;
 import dev.nicolas.startuprush.service.BattleService;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,8 +36,8 @@ public class StartupBattleController {
     }
 
     @GetMapping("/pending")
-    public ResponseEntity<List<StartupBattle>> getPendingBattles() {
-        return ResponseEntity.ok(battleService.getPendingBattles());
+    public ResponseEntity<List<PendingBattleDTO>> getPendingBattles() {
+        return ResponseEntity.ok(battleService.getCompactPendingBattles());
     }
 
     @PostMapping("/round/advance")
