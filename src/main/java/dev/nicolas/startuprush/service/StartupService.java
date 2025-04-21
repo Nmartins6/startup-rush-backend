@@ -7,6 +7,7 @@ import dev.nicolas.startuprush.model.StartupBattle;
 import dev.nicolas.startuprush.repository.BattleEventRepository;
 import dev.nicolas.startuprush.repository.StartupBattleRepository;
 import dev.nicolas.startuprush.repository.StartupRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -137,5 +138,40 @@ public class StartupService {
                 .startup(startup.getName())
                 .battles(battleHistoryList)
                 .build();
+    }
+
+    @Transactional
+    public Startup updateStartup(Long id, UpdateStartupDTO dto) {
+        Startup startup = startupRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Startup not found"));
+
+        if (dto.getName() != null) {
+            String trimmedName = dto.getName().trim();
+            if (trimmedName.isEmpty()) {
+                throw new IllegalArgumentException("Name cannot be empty.");
+            }
+            if (!startup.getName().equalsIgnoreCase(trimmedName) && startupRepository.existsByName(trimmedName)) {
+                throw new IllegalArgumentException("A startup with this name already exists.");
+            }
+            startup.setName(trimmedName);
+        }
+
+        if (dto.getSlogan() != null) {
+            String trimmedSlogan = dto.getSlogan().trim();
+            if (trimmedSlogan.isEmpty()) {
+                throw new IllegalArgumentException("Slogan cannot be empty.");
+            }
+            startup.setSlogan(trimmedSlogan);
+        }
+
+        if (dto.getFoundationYear() != null) {
+            int year = dto.getFoundationYear();
+            if (year < 1800 || year > 2025) {
+                throw new IllegalArgumentException("Invalid foundation year. It must be between 1800 and 2025.");
+            }
+            startup.setFoundationYear(year);
+        }
+
+        return startupRepository.save(startup);
     }
 }

@@ -3,6 +3,7 @@ package dev.nicolas.startuprush.controller;
 import dev.nicolas.startuprush.dto.StartupDTO;
 import dev.nicolas.startuprush.dto.StartupHistoryDTO;
 import dev.nicolas.startuprush.dto.StartupReportDTO;
+import dev.nicolas.startuprush.dto.UpdateStartupDTO;
 import dev.nicolas.startuprush.model.Startup;
 import dev.nicolas.startuprush.model.StartupBattle;
 import dev.nicolas.startuprush.service.StartupService;
@@ -52,5 +53,11 @@ public class StartupController {
     public ResponseEntity<StartupHistoryDTO> getStartupHistory(@PathVariable Long id) {
         return ResponseEntity.ok(startupService.getStartupHistory(id));
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Startup> updateStartup(@PathVariable Long id, @RequestBody @Valid UpdateStartupDTO dto) {
+        return ResponseEntity.ok(startupService.updateStartup(id, dto));
+    }
+
 
 }
