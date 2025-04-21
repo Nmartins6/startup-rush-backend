@@ -59,5 +59,9 @@ public class StartupController {
         return ResponseEntity.ok(startupService.updateStartup(id, dto));
     }
 
-
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteStartup(@PathVariable Long id) {
+        startupService.deleteStartupById(id);
+        return ResponseEntity.noContent().build();
+    }
 }

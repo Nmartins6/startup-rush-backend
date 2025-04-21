@@ -65,7 +65,12 @@ public class StartupService {
         return startupRepository.findAll();
     }
 
+    @Transactional
     public void clearAllStartups() {
+        if (battleRepository.count() > 0) {
+            throw new IllegalStateException("Cannot clear startups after the tournament has started.");
+        }
+
         startupRepository.deleteAll();
     }
 
@@ -174,4 +179,17 @@ public class StartupService {
 
         return startupRepository.save(startup);
     }
+
+    @Transactional
+    public void deleteStartupById(Long id) {
+        if (battleRepository.count() > 0) {
+            throw new IllegalStateException("Cannot delete startups after the tournament has started.");
+        }
+
+        Startup startup = startupRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Startup not found"));
+
+        startupRepository.delete(startup);
+    }
+
 }
