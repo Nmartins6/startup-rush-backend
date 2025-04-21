@@ -15,4 +15,5 @@ public class StartupReportDTO {
     private int investorAngerCount;
     private int fakeNewsCount;
     private int sharkFightCount;
+    private boolean advanceByBye;
 }

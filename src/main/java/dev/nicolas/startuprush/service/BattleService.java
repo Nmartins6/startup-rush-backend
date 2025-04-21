@@ -191,24 +191,40 @@ public class BattleService {
             return Collections.emptyList();
         }
 
-        if (winners.size() < 2 || winners.size() % 2 != 0) {
-            throw new IllegalStateException("You need an even number of winners (at least 2) to create the next round.");
+        int newRound = lastRound + 1;
+        List<StartupBattle> newBattles = new ArrayList<>();
+
+        if (winners.size() % 2 != 0) {
+            Collections.shuffle(winners);
+            Startup byeStartup = winners.removeFirst();
+
+            byeStartup.setScore(byeStartup.getScore() + 30);
+            startupRepository.save(byeStartup);
+
+            StartupBattle byeBattle = StartupBattle.builder()
+                    .startupA(byeStartup)
+                    .startupB(null)
+                    .winner(byeStartup)
+                    .round(newRound)
+                    .completed(true)
+                    .advanceByBye(true)
+                    .build();
+
+            newBattles.add(battleRepository.save(byeBattle));
         }
 
         Collections.shuffle(winners);
-        int newRound = lastRound + 1;
-
-        List<StartupBattle> newBattles = new ArrayList<>();
 
         for (int i = 0; i < winners.size(); i += 2) {
-            StartupBattle newBattle = StartupBattle.builder()
+            StartupBattle battle = StartupBattle.builder()
                     .startupA(winners.get(i))
                     .startupB(winners.get(i + 1))
                     .round(newRound)
                     .completed(false)
+                    .advanceByBye(false)
                     .build();
 
-            newBattles.add(battleRepository.save(newBattle));
+            newBattles.add(battleRepository.save(battle));
         }
 
         return newBattles;
@@ -233,15 +249,17 @@ public class BattleService {
                         .filter(e -> e.getBattle().getId().equals(battle.getId()))
                         .toList();
 
-                List<BattleEvent> eventsB = battleEventRepository.findByStartupId(battle.getStartupB().getId())
+                List<BattleEvent> eventsB = battle.getStartupB() != null
+                        ? battleEventRepository.findByStartupId(battle.getStartupB().getId())
                         .stream()
                         .filter(e -> e.getBattle().getId().equals(battle.getId()))
-                        .toList();
+                        .toList()
+                        : new ArrayList<>();
 
                 BattleReportDTO battleDTO = BattleReportDTO.builder()
                         .battleId(battle.getId())
                         .startupA(battle.getStartupA().getName())
-                        .startupB(battle.getStartupB().getName())
+                        .startupB(battle.getStartupB() != null ? battle.getStartupB().getName() : "BYE")
                         .winner(battle.getWinner() != null ? battle.getWinner().getName() : null)
                         .eventsA(eventsA.stream()
                                 .map(e -> BattleEventReportDTO.builder()
@@ -255,6 +273,7 @@ public class BattleService {
                                         .points(e.getPoints())
                                         .build())
                                 .toList())
+                        .advanceByBye(battle.isAdvanceByBye())
                         .build();
 
                 battleReports.add(battleDTO);
@@ -268,6 +287,7 @@ public class BattleService {
 
         return roundReports;
     }
+
 
     public ChampionDTO getChampion() {
         List<StartupBattle> allBattles = battleRepository.findAll();

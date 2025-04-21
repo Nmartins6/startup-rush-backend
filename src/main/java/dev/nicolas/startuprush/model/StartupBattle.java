@@ -32,4 +32,7 @@ public class StartupBattle {
     private Startup winner;
 
     private boolean completed = false;
+
+    @Column(nullable = false)
+    private boolean advanceByBye = false;
 }

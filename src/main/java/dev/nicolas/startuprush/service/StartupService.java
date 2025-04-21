@@ -85,12 +85,18 @@ public class StartupService {
     public List<StartupReportDTO> getRankingReport() {
         List<Startup> startups = startupRepository.findAll();
         List<BattleEvent> allEvents = battleEventRepository.findAll();
+        List<StartupBattle> allBattles = battleRepository.findAll();
 
         return startups.stream()
                 .map(startup -> {
                     List<BattleEvent> events = allEvents.stream()
                             .filter(e -> Objects.equals(e.getStartup().getId(), startup.getId()))
                             .toList();
+
+                    boolean advanceByBye = allBattles.stream()
+                            .anyMatch(b -> b.getWinner() != null
+                                    && b.getWinner().getId() == (startup.getId())
+                                    && b.isAdvanceByBye());
 
                     long pitchCount = events.stream().filter(e -> e.getType().equals("PITCH")).count();
                     long bugsCount = events.stream().filter(e -> e.getType().equals("BUG")).count();
@@ -108,7 +114,8 @@ public class StartupService {
                             .userTractionCount((int) userTractionCount)
                             .investorAngerCount((int) investorAngerCount)
                             .fakeNewsCount((int) fakeNewsCount)
-                            .sharkFightCount((int) sharkFightCount) // NOVO CAMPO
+                            .sharkFightCount((int) sharkFightCount)
+                            .advanceByBye(advanceByBye)
                             .build();
                 })
                 .sorted(Comparator.comparingInt(StartupReportDTO::getScore).reversed())
@@ -121,7 +128,8 @@ public class StartupService {
                 .orElseThrow(() -> new IllegalArgumentException("Startup not found"));
 
         List<StartupBattle> battles = battleRepository.findAll().stream()
-                .filter(b -> b.getStartupA().getId() == startupId || b.getStartupB().getId() == startupId)
+                .filter(b -> b.getStartupA().getId() == (startupId) ||
+                        (b.getStartupB() != null && b.getStartupB().getId() == (startupId)))
                 .toList();
 
         List<BattleEvent> allBattleEvents = battleEventRepository.findByStartupId(startupId);
@@ -129,12 +137,14 @@ public class StartupService {
         List<StartupBattleHistoryDTO> battleHistoryList = new ArrayList<>();
 
         for (StartupBattle battle : battles) {
-            boolean isStartupA = battle.getStartupA().getId() == startupId;
+            boolean isStartupA = battle.getStartupA().getId() == (startupId);
             Startup opponent = isStartupA ? battle.getStartupB() : battle.getStartupA();
+
+            String opponentName = opponent != null ? opponent.getName() : "N/A";
 
             String result = "PENDING";
             if (battle.isCompleted()) {
-                if (battle.getWinner() != null && battle.getWinner().getId() == startupId) {
+                if (battle.getWinner() != null && battle.getWinner().getId() == (startupId)) {
                     result = "WIN";
                 } else {
                     result = "LOSS";
@@ -151,7 +161,7 @@ public class StartupService {
 
             StartupBattleHistoryDTO battleDTO = StartupBattleHistoryDTO.builder()
                     .round(battle.getRound())
-                    .opponent(opponent.getName())
+                    .opponent(opponentName)
                     .result(result)
                     .events(events)
                     .build();

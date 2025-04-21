@@ -14,4 +14,5 @@ public class BattleReportDTO {
     private String winner;
     private List<BattleEventReportDTO> eventsA;
     private List<BattleEventReportDTO> eventsB;
+    private boolean advanceByBye;
 }
