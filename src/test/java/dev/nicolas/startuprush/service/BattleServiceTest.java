@@ -34,20 +34,21 @@ public class BattleServiceTest {
 
     @Test
     void testApplyBattleEventsWithValidEventTypes() {
-        BattleEventsRequestDTO request = new BattleEventsRequestDTO();
-        request.setBattleId(1L);
-
-        request.setEventsForStartupA(List.of(new BattleEventDTO("PITCH")));
-        request.setEventsForStartupB(List.of(new BattleEventDTO("BUG")));
-
         Startup startupA = Startup.builder().id(1L).name("A").score(70).build();
         Startup startupB = Startup.builder().id(2L).name("B").score(70).build();
+
         StartupBattle battle = StartupBattle.builder()
                 .id(1L)
                 .startupA(startupA)
                 .startupB(startupB)
                 .completed(false)
                 .round(0)
+                .build();
+
+        BattleEventsRequestDTO request = BattleEventsRequestDTO.builder()
+                .battleId(1L)
+                .eventsForStartupA(List.of(new BattleEventDTO("PITCH")))
+                .eventsForStartupB(List.of(new BattleEventDTO("BUG")))
                 .build();
 
         when(battleRepository.findById(1L)).thenReturn(Optional.of(battle));
@@ -60,17 +61,21 @@ public class BattleServiceTest {
 
     @Test
     void testApplyBattleEventsWithInvalidEventType() {
-        BattleEventsRequestDTO request = new BattleEventsRequestDTO();
-        request.setBattleId(1L);
-        request.setEventsForStartupA(List.of(new BattleEventDTO("CAFÉ_GRÁTIS"))); // evento inválido
-
         Startup startupA = Startup.builder().id(1L).name("A").score(70).build();
+        Startup startupB = Startup.builder().id(2L).name("B").score(70).build();
+
         StartupBattle battle = StartupBattle.builder()
                 .id(1L)
                 .startupA(startupA)
-                .startupB(startupA)
+                .startupB(startupB)
                 .completed(false)
                 .round(0)
+                .build();
+
+        BattleEventsRequestDTO request = BattleEventsRequestDTO.builder()
+                .battleId(1L)
+                .eventsForStartupA(List.of(new BattleEventDTO("CAFÉ_GRÁTIS")))  // inválido
+                .eventsForStartupB(List.of())
                 .build();
 
         when(battleRepository.findById(1L)).thenReturn(Optional.of(battle));

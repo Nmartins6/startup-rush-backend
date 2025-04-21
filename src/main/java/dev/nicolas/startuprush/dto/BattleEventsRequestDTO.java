@@ -1,10 +1,15 @@
 package dev.nicolas.startuprush.dto;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
+@Builder
+@AllArgsConstructor(access = AccessLevel.PUBLIC)
 public class BattleEventsRequestDTO {
     private Long battleId;
     private List<BattleEventDTO> eventsForStartupA;
