@@ -19,88 +19,110 @@ Projeto desenvolvido para o desafio técnico **Startup Rush**, que simula um tor
 
 ## ▶️ Como rodar o projeto
 
-1. Clone o repositório:
-   ```bash
-   git clone git@github.com:Nmartins6/startup-rush-backend.git
-   cd startup-rush
-   ```
+### 🟢 Executar normalmente (sem dados)
 
-2. Vá para o diretório do projeto:
-   ```bash
-   cd startuprush
-   ```
+```bash
+./mvnw spring-boot:run
+```
 
-3. Rode o projeto com Maven:
-   ```bash
-   ./mvnw spring-boot:run
-   ```
+Acesse:
+```
+http://localhost:8080/swagger-ui/index.html
+```
 
-4. Acesse a documentação interativa no navegador:
-   ```
-   http://localhost:8080/swagger-ui/index.html
-   ```
+---
+
+### 🧪 Executar com seed (modo dev)
+
+Executa o projeto com um endpoint adicional que permite popular o banco automaticamente com 4, 6 ou 8 startups e simular um torneio completo.
+
+#### Linux/macOS:
+```bash
+./mvnw spring-boot:run "-Dspring-boot.run.arguments=--spring.profiles.active=dev"
+```
+
+#### Windows PowerShell:
+```bash
+./mvnw spring-boot:run "-Dspring-boot.run.arguments=--spring.profiles.active=dev"
+```
+
+#### Windows CMD:
+```cmd
+mvnw spring-boot:run "-Dspring-boot.run.arguments=--spring.profiles.active=dev"
+```
+
+Depois de rodar, acesse o endpoint:
+```
+POST http://localhost:8080/api/dev/seed?quantity=6
+```
+
+> 🔢 `quantity` atualmente pode ser 4, 6 ou 8
+
+---
 
 ## ✅ Como testar o projeto
 
-Você pode usar o Swagger para testar todos os endpoints, mas aqui estão os passos gerais:
+Você pode usar o Swagger para testar todos os endpoints:
 
-1. **Cadastrar startups**:  
-   Use o endpoint `POST /api/startups` com nome, slogan e foundationYear.
-```json
-{
-  "name": "InovaMax",
-  "slogan": "Building the future",
-  "foundationYear": 2023
-}
-```
+1. **Cadastrar startups**  
+   `POST /api/startups`
+   ```json
+   {
+     "name": "InovaMax",
+     "slogan": "Building the future",
+     "foundationYear": 2023
+   }
+   ```
 
-2. **Iniciar torneio**:  
-   Após cadastrar entre 4 e 8 startups, chame `POST /api/battles/start-tournament`.
+2. **Iniciar torneio**  
+   `POST /api/battles/start-tournament`
 
-3. **Consultar batalhas pendentes**:  
-   Use `GET /api/battles/pending`.
+3. **Ver batalhas pendentes**  
+   `GET /api/battles/pending`
 
-4. **Aplicar eventos a uma batalha**:  
-   Use `POST /api/battles/events` passando os eventos da batalha.
-```json
-{
-   "battleId": 1,
-   "eventsForStartupA": [
-      { "type": "PITCH" },
-      { "type": "USER_TRACTION" }
-   ],
-   "eventsForStartupB": [
-      { "type": "BUG" },
-      { "type": "FAKE_NEWS" }
-   ]
-}
-```
+4. **Aplicar eventos à batalha**  
+   `POST /api/battles/events`
+   ```json
+   {
+     "battleId": 1,
+     "eventsForStartupA": [
+       { "type": "PITCH" },
+       { "type": "USER_TRACTION" }
+     ],
+     "eventsForStartupB": [
+       { "type": "BUG" },
+       { "type": "FAKE_NEWS" }
+     ]
+   }
+   ```
 
-5. **Ver relatório geral**:  
-   Use `GET /api/battles/report`.
+5. **Relatório geral**  
+   `GET /api/battles/report`
 
-6. **Ver histórico por startup**:  
-   Use `GET /api/startups/{id}/history`.
+6. **Histórico por startup**  
+   `GET /api/startups/{id}/history`
 
-7. **Ver campeã**:  
-   Use `GET /api/battles/champion`.
+7. **Campeã do torneio**  
+   `GET /api/battles/champion`
+
+---
 
 ## 🔎 Banco de dados H2
 
-Durante a execução, você pode acessar o banco em:
+Acesse:
 ```
 http://localhost:8080/h2-console
 ```
 
-Use os dados:
+Credenciais:
 - JDBC URL: `jdbc:h2:mem:testdb`
 - User: `sa`
 - Password: *(em branco)*
+
+---
 
 ## 🧪 Rodar os testes
 
 ```bash
 ./mvnw test
 ```
-
----

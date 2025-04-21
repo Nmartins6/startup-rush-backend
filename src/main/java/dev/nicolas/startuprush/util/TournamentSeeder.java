@@ -11,7 +11,6 @@ import dev.nicolas.startuprush.repository.StartupBattleRepository;
 import dev.nicolas.startuprush.repository.StartupRepository;
 import dev.nicolas.startuprush.service.BattleService;
 import dev.nicolas.startuprush.service.StartupService;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -19,7 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-public class TournamentSeeder implements CommandLineRunner {
+public class TournamentSeeder {
 
     private final StartupService startupService;
     private final BattleService battleService;
@@ -39,12 +38,12 @@ public class TournamentSeeder implements CommandLineRunner {
         this.battleEventRepository = battleEventRepository;
     }
 
-    @Override
-    public void run(String... args) {
-        seedTournament(8);  //{4, 6 , 8}
-    }
+    public void seedTournament(int quantity) {
+        if (quantity < 4 || quantity > 8 || quantity % 2 != 0) {
+            System.out.println("Erro: a quantidade de startups deve ser par, entre 4 e 8.");
+            return;
+        }
 
-    private void seedTournament(int quantity) {
         System.out.println("== Seed de Torneio com " + quantity + " startups ==\n");
 
         startupRepository.deleteAll();
