@@ -2,6 +2,7 @@ package dev.nicolas.startuprush.service;
 
 import dev.nicolas.startuprush.dto.BattleEventDTO;
 import dev.nicolas.startuprush.dto.BattleEventsRequestDTO;
+import dev.nicolas.startuprush.model.BattleEvent;
 import dev.nicolas.startuprush.model.Startup;
 import dev.nicolas.startuprush.model.StartupBattle;
 import dev.nicolas.startuprush.repository.BattleEventRepository;
@@ -10,9 +11,7 @@ import dev.nicolas.startuprush.repository.StartupRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -34,15 +33,12 @@ public class BattleServiceTest {
     }
 
     @Test
-    void testApplyBattleEventsAndDetermineWinner() {
+    void testApplyBattleEventsWithValidEventTypes() {
         BattleEventsRequestDTO request = new BattleEventsRequestDTO();
         request.setBattleId(1L);
 
-        BattleEventDTO event1 = new BattleEventDTO("PITCH", 6);
-        BattleEventDTO event2 = new BattleEventDTO("BUG", -4);
-
-        request.setEventsForStartupA(List.of(event1));
-        request.setEventsForStartupB(List.of(event2));
+        request.setEventsForStartupA(List.of(new BattleEventDTO("PITCH")));
+        request.setEventsForStartupB(List.of(new BattleEventDTO("BUG")));
 
         Startup startupA = Startup.builder().id(1L).name("A").score(70).build();
         Startup startupB = Startup.builder().id(2L).name("B").score(70).build();
@@ -55,11 +51,34 @@ public class BattleServiceTest {
                 .build();
 
         when(battleRepository.findById(1L)).thenReturn(Optional.of(battle));
-        when(battleEventRepository.findByStartupId(any())).thenReturn(List.of());
+        when(battleEventRepository.existsByStartupIdAndBattleIdAndType(anyLong(), anyLong(), anyString())).thenReturn(false);
         when(battleRepository.findAll()).thenReturn(List.of(battle));
         when(battleRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
 
         assertDoesNotThrow(() -> battleService.applyBattleEvents(request));
+    }
+
+    @Test
+    void testApplyBattleEventsWithInvalidEventType() {
+        BattleEventsRequestDTO request = new BattleEventsRequestDTO();
+        request.setBattleId(1L);
+        request.setEventsForStartupA(List.of(new BattleEventDTO("CAFÉ_GRÁTIS"))); // evento inválido
+
+        Startup startupA = Startup.builder().id(1L).name("A").score(70).build();
+        StartupBattle battle = StartupBattle.builder()
+                .id(1L)
+                .startupA(startupA)
+                .startupB(startupA)
+                .completed(false)
+                .round(0)
+                .build();
+
+        when(battleRepository.findById(1L)).thenReturn(Optional.of(battle));
+        when(battleEventRepository.existsByStartupIdAndBattleIdAndType(anyLong(), anyLong(), anyString())).thenReturn(false);
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+                battleService.applyBattleEvents(request));
+        assertTrue(exception.getMessage().contains("Unknown event type"));
     }
 
     @Test

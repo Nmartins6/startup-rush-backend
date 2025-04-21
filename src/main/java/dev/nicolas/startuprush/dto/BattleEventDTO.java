@@ -11,5 +11,4 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class BattleEventDTO {
     private String type;
-    private int points;
 }

@@ -18,6 +18,17 @@ import java.util.stream.Stream;
 public class BattleService {
 
     private final BattleEventRepository battleEventRepository;
+    private final StartupBattleRepository battleRepository;
+    private final StartupRepository startupRepository;
+    private final Random random = new Random();
+
+    private static final Map<String, Integer> KNOWN_EVENTS = Map.of(
+            "PITCH", 6,
+            "BUG", -4,
+            "USER_TRACTION", 3,
+            "INVESTOR_ANGER", -6,
+            "FAKE_NEWS", -8
+    );
 
     public BattleService(StartupRepository startupRepository,
                          StartupBattleRepository battleRepository, BattleEventRepository battleEventRepository) {
@@ -25,10 +36,6 @@ public class BattleService {
         this.battleRepository = battleRepository;
         this.battleEventRepository = battleEventRepository;
     }
-
-    private final StartupBattleRepository battleRepository;
-    private final StartupRepository startupRepository;
-    private final Random random = new Random();
 
     @Transactional
     public StartupBattle applyBattleEvents(BattleEventsRequestDTO request) {
@@ -51,7 +58,7 @@ public class BattleService {
             battle.setWinner(startupB);
             startupB.setScore(startupB.getScore() + 30);
         } else {
-            Startup winner = new Random().nextBoolean() ? startupA : startupB;
+            Startup winner = random.nextBoolean() ? startupA : startupB;
             winner.setScore(winner.getScore() + 2);
 
             BattleEvent sharkFightEvent = BattleEvent.builder()
@@ -90,24 +97,32 @@ public class BattleService {
         int totalPoints = 0;
 
         for (BattleEventDTO dto : events) {
+            String type = dto.getType().toUpperCase();
+
+            if (!KNOWN_EVENTS.containsKey(type)) {
+                throw new IllegalArgumentException("Unknown event type: " + dto.getType());
+            }
+
+            Integer eventPoints = KNOWN_EVENTS.get(type);
+
             boolean alreadyExists = battleEventRepository.existsByStartupIdAndBattleIdAndType(
                     startup.getId(),
                     battle.getId(),
-                    dto.getType()
+                    type
             );
 
             if (alreadyExists) {
-                throw new IllegalArgumentException("Startup '" + startup.getName() + "' has already received the event '" + dto.getType() + "' in this battle.");
+                throw new IllegalArgumentException("Startup '" + startup.getName() + "' has already received the event '" + type + "' in this battle.");
             }
 
             BattleEvent event = BattleEvent.builder()
-                    .type(dto.getType())
-                    .points(dto.getPoints())
+                    .type(type)
+                    .points(eventPoints)
                     .startup(startup)
                     .battle(battle)
                     .build();
 
-            totalPoints += dto.getPoints();
+            totalPoints += eventPoints;
             battleEventRepository.save(event);
         }
 
@@ -315,5 +330,4 @@ public class BattleService {
 
         return battles;
     }
-
 }
