@@ -50,7 +50,7 @@ public class StartupBattleController {
 
     @GetMapping("/champion")
     public ResponseEntity<ChampionDTO> getChampion() {
-        ChampionDTO champion = battleService.getChampion(); // já retorna DTO direto!
+        ChampionDTO champion = battleService.getChampion();
         return ResponseEntity.ok(champion);
     }
 

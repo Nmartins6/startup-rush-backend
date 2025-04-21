@@ -10,10 +10,7 @@ import dev.nicolas.startuprush.repository.StartupRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -86,15 +83,38 @@ public class StartupService {
     }
 
     public List<StartupReportDTO> getRankingReport() {
-        return startupRepository.findAll().stream()
-                .map(startup -> StartupReportDTO.builder()
-                        .name(startup.getName())
-                        .slogan(startup.getSlogan())
-                        .score(startup.getScore())
-                        .build())
+        List<Startup> startups = startupRepository.findAll();
+        List<BattleEvent> allEvents = battleEventRepository.findAll();
+
+        return startups.stream()
+                .map(startup -> {
+                    List<BattleEvent> events = allEvents.stream()
+                            .filter(e -> Objects.equals(e.getStartup().getId(), startup.getId()))
+                            .toList();
+
+                    long pitchCount = events.stream().filter(e -> e.getType().equals("PITCH")).count();
+                    long bugsCount = events.stream().filter(e -> e.getType().equals("BUG")).count();
+                    long userTractionCount = events.stream().filter(e -> e.getType().equals("USER_TRACTION")).count();
+                    long investorAngerCount = events.stream().filter(e -> e.getType().equals("INVESTOR_ANGER")).count();
+                    long fakeNewsCount = events.stream().filter(e -> e.getType().equals("FAKE_NEWS")).count();
+                    long sharkFightCount = events.stream().filter(e -> e.getType().equals("SHARK_FIGHT")).count();
+
+                    return StartupReportDTO.builder()
+                            .name(startup.getName())
+                            .slogan(startup.getSlogan())
+                            .score(startup.getScore())
+                            .pitchCount((int) pitchCount)
+                            .bugsCount((int) bugsCount)
+                            .userTractionCount((int) userTractionCount)
+                            .investorAngerCount((int) investorAngerCount)
+                            .fakeNewsCount((int) fakeNewsCount)
+                            .sharkFightCount((int) sharkFightCount) // NOVO CAMPO
+                            .build();
+                })
                 .sorted(Comparator.comparingInt(StartupReportDTO::getScore).reversed())
-                .collect(Collectors.toList());
+                .toList();
     }
+
 
     public StartupHistoryDTO getStartupHistory(Long startupId) {
         Startup startup = startupRepository.findById(startupId)

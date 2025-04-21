@@ -14,4 +14,5 @@ public class StartupReportDTO {
     private int userTractionCount;
     private int investorAngerCount;
     private int fakeNewsCount;
+    private int sharkFightCount;
 }
