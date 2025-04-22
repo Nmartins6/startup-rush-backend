@@ -1,4 +1,4 @@
-package dev.nicolas.startuprush.dto;
+package dev.nicolas.startuprush.dto.response;
 
 public record PendingBattleDTO(
         Long battleId,

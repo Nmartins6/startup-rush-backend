@@ -1,6 +1,13 @@
 package dev.nicolas.startuprush.service;
 
-import dev.nicolas.startuprush.dto.*;
+import dev.nicolas.startuprush.dto.common.BattleEventDTO;
+import dev.nicolas.startuprush.dto.common.BattleEventReportDTO;
+import dev.nicolas.startuprush.dto.common.StartupSummaryDTO;
+import dev.nicolas.startuprush.dto.report.BattleReportDTO;
+import dev.nicolas.startuprush.dto.report.RoundReportDTO;
+import dev.nicolas.startuprush.dto.request.BattleEventsRequestDTO;
+import dev.nicolas.startuprush.dto.response.ChampionDTO;
+import dev.nicolas.startuprush.dto.response.PendingBattleDTO;
 import dev.nicolas.startuprush.model.BattleEvent;
 import dev.nicolas.startuprush.model.Startup;
 import dev.nicolas.startuprush.model.StartupBattle;
@@ -258,9 +265,13 @@ public class BattleService {
 
                 BattleReportDTO battleDTO = BattleReportDTO.builder()
                         .battleId(battle.getId())
-                        .startupA(battle.getStartupA().getName())
-                        .startupB(battle.getStartupB() != null ? battle.getStartupB().getName() : "BYE")
-                        .winner(battle.getWinner() != null ? battle.getWinner().getName() : null)
+                        .startupA(new StartupSummaryDTO(battle.getStartupA().getId(), battle.getStartupA().getName()))
+                        .startupB(battle.getStartupB() != null
+                                ? new StartupSummaryDTO(battle.getStartupB().getId(), battle.getStartupB().getName())
+                                : null)
+                        .winner(battle.getWinner() != null
+                                ? new StartupSummaryDTO(battle.getWinner().getId(), battle.getWinner().getName())
+                                : null)
                         .eventsA(eventsA.stream()
                                 .map(e -> BattleEventReportDTO.builder()
                                         .type(e.getType())
@@ -287,7 +298,6 @@ public class BattleService {
 
         return roundReports;
     }
-
 
     public ChampionDTO getChampion() {
         List<StartupBattle> allBattles = battleRepository.findAll();

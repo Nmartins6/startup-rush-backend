@@ -1,4 +1,4 @@
-package dev.nicolas.startuprush.dto;
+package dev.nicolas.startuprush.dto.common;
 
 import lombok.Builder;
 import lombok.Data;

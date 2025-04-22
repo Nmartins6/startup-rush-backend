@@ -1,11 +1,10 @@
 package dev.nicolas.startuprush.controller;
 
-import dev.nicolas.startuprush.dto.StartupDTO;
-import dev.nicolas.startuprush.dto.StartupHistoryDTO;
-import dev.nicolas.startuprush.dto.StartupReportDTO;
-import dev.nicolas.startuprush.dto.UpdateStartupDTO;
+import dev.nicolas.startuprush.dto.request.StartupDTO;
+import dev.nicolas.startuprush.dto.response.StartupHistoryDTO;
+import dev.nicolas.startuprush.dto.response.StartupReportDTO;
+import dev.nicolas.startuprush.dto.request.UpdateStartupDTO;
 import dev.nicolas.startuprush.model.Startup;
-import dev.nicolas.startuprush.model.StartupBattle;
 import dev.nicolas.startuprush.service.StartupService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;

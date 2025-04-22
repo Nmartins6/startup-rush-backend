@@ -1,6 +1,11 @@
 package dev.nicolas.startuprush.service;
 
-import dev.nicolas.startuprush.dto.*;
+import dev.nicolas.startuprush.dto.request.StartupDTO;
+import dev.nicolas.startuprush.dto.request.UpdateStartupDTO;
+import dev.nicolas.startuprush.dto.response.StartupBattleHistoryDTO;
+import dev.nicolas.startuprush.dto.response.StartupHistoryDTO;
+import dev.nicolas.startuprush.dto.response.StartupHistoryEventDTO;
+import dev.nicolas.startuprush.dto.response.StartupReportDTO;
 import dev.nicolas.startuprush.model.BattleEvent;
 import dev.nicolas.startuprush.model.Startup;
 import dev.nicolas.startuprush.model.StartupBattle;
@@ -11,7 +16,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class StartupService {

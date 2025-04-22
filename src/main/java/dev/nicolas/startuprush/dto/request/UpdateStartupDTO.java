@@ -1,4 +1,4 @@
-package dev.nicolas.startuprush.dto;
+package dev.nicolas.startuprush.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;

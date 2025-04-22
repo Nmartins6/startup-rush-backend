@@ -1,0 +1,20 @@
+package dev.nicolas.startuprush.dto.report;
+
+import dev.nicolas.startuprush.dto.common.BattleEventReportDTO;
+import dev.nicolas.startuprush.dto.common.StartupSummaryDTO;
+import lombok.Builder;
+import lombok.Data;
+
+import java.util.List;
+
+@Data
+@Builder
+public class BattleReportDTO {
+    private Long battleId;
+    private StartupSummaryDTO startupA;
+    private StartupSummaryDTO startupB;
+    private StartupSummaryDTO winner;
+    private List<BattleEventReportDTO> eventsA;
+    private List<BattleEventReportDTO> eventsB;
+    private boolean advanceByBye;
+}
