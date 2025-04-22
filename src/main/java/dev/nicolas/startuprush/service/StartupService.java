@@ -132,8 +132,8 @@ public class StartupService {
                 .orElseThrow(() -> new IllegalArgumentException("Startup not found"));
 
         List<StartupBattle> battles = battleRepository.findAll().stream()
-                .filter(b -> b.getStartupA().getId() == (startupId) ||
-                        (b.getStartupB() != null && b.getStartupB().getId() == (startupId)))
+                .filter(b -> Objects.equals(b.getStartupA().getId(), startupId) ||
+                        (b.getStartupB() != null && Objects.equals(b.getStartupB().getId(), startupId)))
                 .toList();
 
         List<BattleEvent> allBattleEvents = battleEventRepository.findByStartupId(startupId);
@@ -141,14 +141,14 @@ public class StartupService {
         List<StartupBattleHistoryDTO> battleHistoryList = new ArrayList<>();
 
         for (StartupBattle battle : battles) {
-            boolean isStartupA = battle.getStartupA().getId() == (startupId);
+            boolean isStartupA = Objects.equals(battle.getStartupA().getId(), startupId);
             Startup opponent = isStartupA ? battle.getStartupB() : battle.getStartupA();
 
-            String opponentName = opponent != null ? opponent.getName() : "N/A";
+            String opponentName = opponent != null ? opponent.getName() : "BYE";
 
             String result = "PENDING";
             if (battle.isCompleted()) {
-                if (battle.getWinner() != null && battle.getWinner().getId() == (startupId)) {
+                if (battle.getWinner() != null && Objects.equals(battle.getWinner().getId(), startupId)) {
                     result = "WIN";
                 } else {
                     result = "LOSS";
@@ -156,21 +156,19 @@ public class StartupService {
             }
 
             List<StartupHistoryEventDTO> events = allBattleEvents.stream()
-                    .filter(e -> e.getBattle().getId().equals(battle.getId()))
+                    .filter(e -> Objects.equals(e.getBattle().getId(), battle.getId()))
                     .map(e -> StartupHistoryEventDTO.builder()
                             .type(e.getType())
                             .points(e.getPoints())
                             .build())
                     .toList();
 
-            StartupBattleHistoryDTO battleDTO = StartupBattleHistoryDTO.builder()
+            battleHistoryList.add(StartupBattleHistoryDTO.builder()
                     .round(battle.getRound())
                     .opponent(opponentName)
                     .result(result)
                     .events(events)
-                    .build();
-
-            battleHistoryList.add(battleDTO);
+                    .build());
         }
 
         return StartupHistoryDTO.builder()
