@@ -1,4 +1,4 @@
-package dev.nicolas.startuprush.dto.request;
+package dev.nicolas.startuprush.dto.startup;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

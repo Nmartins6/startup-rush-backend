@@ -1,4 +1,4 @@
-package dev.nicolas.startuprush.dto.common;
+package dev.nicolas.startuprush.dto.startup;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,8 +7,9 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-public class BattleEventDTO {
-    private String type;
+@AllArgsConstructor
+public class ChampionDTO {
+    private String name;
+    private String slogan;
 }

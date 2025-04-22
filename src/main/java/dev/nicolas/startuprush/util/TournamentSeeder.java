@@ -1,9 +1,9 @@
 package dev.nicolas.startuprush.util;
 
-import dev.nicolas.startuprush.dto.common.BattleEventDTO;
-import dev.nicolas.startuprush.dto.request.BattleEventsRequestDTO;
-import dev.nicolas.startuprush.dto.response.ChampionDTO;
-import dev.nicolas.startuprush.dto.request.StartupDTO;
+import dev.nicolas.startuprush.dto.battle.BattleEventDTO;
+import dev.nicolas.startuprush.dto.battle.BattleEventsRequestDTO;
+import dev.nicolas.startuprush.dto.startup.ChampionDTO;
+import dev.nicolas.startuprush.dto.startup.StartupDTO;
 import dev.nicolas.startuprush.model.StartupBattle;
 import dev.nicolas.startuprush.repository.BattleEventRepository;
 import dev.nicolas.startuprush.repository.StartupBattleRepository;

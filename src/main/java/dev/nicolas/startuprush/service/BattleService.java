@@ -1,13 +1,13 @@
 package dev.nicolas.startuprush.service;
 
-import dev.nicolas.startuprush.dto.common.BattleEventDTO;
-import dev.nicolas.startuprush.dto.common.BattleEventReportDTO;
+import dev.nicolas.startuprush.dto.battle.BattleEventDTO;
+import dev.nicolas.startuprush.dto.battle.BattleEventReportDTO;
 import dev.nicolas.startuprush.dto.common.StartupSummaryDTO;
 import dev.nicolas.startuprush.dto.report.BattleReportDTO;
 import dev.nicolas.startuprush.dto.report.RoundReportDTO;
-import dev.nicolas.startuprush.dto.request.BattleEventsRequestDTO;
-import dev.nicolas.startuprush.dto.response.ChampionDTO;
-import dev.nicolas.startuprush.dto.response.PendingBattleDTO;
+import dev.nicolas.startuprush.dto.battle.BattleEventsRequestDTO;
+import dev.nicolas.startuprush.dto.startup.ChampionDTO;
+import dev.nicolas.startuprush.dto.battle.PendingBattleDTO;
 import dev.nicolas.startuprush.model.BattleEvent;
 import dev.nicolas.startuprush.model.Startup;
 import dev.nicolas.startuprush.model.StartupBattle;

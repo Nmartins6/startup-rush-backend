@@ -1,11 +1,11 @@
 package dev.nicolas.startuprush.service;
 
-import dev.nicolas.startuprush.dto.request.StartupDTO;
-import dev.nicolas.startuprush.dto.request.UpdateStartupDTO;
-import dev.nicolas.startuprush.dto.response.StartupBattleHistoryDTO;
-import dev.nicolas.startuprush.dto.response.StartupHistoryDTO;
-import dev.nicolas.startuprush.dto.response.StartupHistoryEventDTO;
-import dev.nicolas.startuprush.dto.response.StartupReportDTO;
+import dev.nicolas.startuprush.dto.startup.StartupDTO;
+import dev.nicolas.startuprush.dto.startup.UpdateStartupDTO;
+import dev.nicolas.startuprush.dto.startup.StartupBattleHistoryDTO;
+import dev.nicolas.startuprush.dto.startup.StartupHistoryDTO;
+import dev.nicolas.startuprush.dto.startup.StartupHistoryEventDTO;
+import dev.nicolas.startuprush.dto.startup.StartupReportDTO;
 import dev.nicolas.startuprush.model.BattleEvent;
 import dev.nicolas.startuprush.model.Startup;
 import dev.nicolas.startuprush.model.StartupBattle;

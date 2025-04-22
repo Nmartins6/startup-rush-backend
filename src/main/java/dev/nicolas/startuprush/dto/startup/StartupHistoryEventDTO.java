@@ -1,11 +1,11 @@
-package dev.nicolas.startuprush.dto.common;
+package dev.nicolas.startuprush.dto.startup;
 
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder
-public class BattleEventReportDTO {
+public class StartupHistoryEventDTO {
     private String type;
     private int points;
 }

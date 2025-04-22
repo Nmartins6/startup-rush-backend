@@ -1,9 +1,9 @@
 package dev.nicolas.startuprush.controller;
 
-import dev.nicolas.startuprush.dto.request.StartupDTO;
-import dev.nicolas.startuprush.dto.response.StartupHistoryDTO;
-import dev.nicolas.startuprush.dto.response.StartupReportDTO;
-import dev.nicolas.startuprush.dto.request.UpdateStartupDTO;
+import dev.nicolas.startuprush.dto.startup.StartupDTO;
+import dev.nicolas.startuprush.dto.startup.StartupHistoryDTO;
+import dev.nicolas.startuprush.dto.startup.StartupReportDTO;
+import dev.nicolas.startuprush.dto.startup.UpdateStartupDTO;
 import dev.nicolas.startuprush.model.Startup;
 import dev.nicolas.startuprush.service.StartupService;
 import jakarta.validation.Valid;

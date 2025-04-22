@@ -1,7 +1,7 @@
 
 package dev.nicolas.startuprush.service;
 
-import dev.nicolas.startuprush.dto.request.StartupDTO;
+import dev.nicolas.startuprush.dto.startup.StartupDTO;
 import dev.nicolas.startuprush.repository.BattleEventRepository;
 import dev.nicolas.startuprush.repository.StartupBattleRepository;
 import dev.nicolas.startuprush.repository.StartupRepository;

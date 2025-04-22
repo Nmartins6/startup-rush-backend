@@ -1,6 +1,5 @@
-package dev.nicolas.startuprush.dto.request;
+package dev.nicolas.startuprush.dto.battle;
 
-import dev.nicolas.startuprush.dto.common.BattleEventDTO;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
