@@ -56,4 +56,5 @@ public class StartupBattleController {
     public ResponseEntity<List<StartupBattle>> startTournament() {
         return ResponseEntity.ok(battleService.startTournament());
     }
+
 }

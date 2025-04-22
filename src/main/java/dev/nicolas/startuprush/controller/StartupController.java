@@ -1,9 +1,6 @@
 package dev.nicolas.startuprush.controller;
 
-import dev.nicolas.startuprush.dto.startup.StartupDTO;
-import dev.nicolas.startuprush.dto.startup.StartupHistoryDTO;
-import dev.nicolas.startuprush.dto.startup.StartupReportDTO;
-import dev.nicolas.startuprush.dto.startup.UpdateStartupDTO;
+import dev.nicolas.startuprush.dto.startup.*;
 import dev.nicolas.startuprush.model.Startup;
 import dev.nicolas.startuprush.service.StartupService;
 import jakarta.validation.Valid;
@@ -63,4 +60,10 @@ public class StartupController {
         startupService.deleteStartupById(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/ranking/compact")
+    public ResponseEntity<List<StartupRankingDTO>> getCompactRanking() {
+        return ResponseEntity.ok(startupService.getCompactRanking());
+    }
+
 }
