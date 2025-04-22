@@ -1,13 +1,10 @@
 package dev.nicolas.startuprush.service;
 
-import dev.nicolas.startuprush.dto.battle.BattleEventDTO;
-import dev.nicolas.startuprush.dto.battle.BattleEventReportDTO;
+import dev.nicolas.startuprush.dto.battle.*;
 import dev.nicolas.startuprush.dto.common.StartupSummaryDTO;
 import dev.nicolas.startuprush.dto.report.BattleReportDTO;
 import dev.nicolas.startuprush.dto.report.RoundReportDTO;
-import dev.nicolas.startuprush.dto.battle.BattleEventsRequestDTO;
 import dev.nicolas.startuprush.dto.startup.ChampionDTO;
-import dev.nicolas.startuprush.dto.battle.PendingBattleDTO;
 import dev.nicolas.startuprush.model.BattleEvent;
 import dev.nicolas.startuprush.model.Startup;
 import dev.nicolas.startuprush.model.StartupBattle;
@@ -340,6 +337,44 @@ public class BattleService {
                 .toList();
     }
 
+    public BattleDetailsDTO getBattleDetails(Long battleId) {
+        StartupBattle battle = battleRepository.findById(battleId)
+                .orElseThrow(() -> new IllegalArgumentException("Battle not found"));
+
+        List<BattleEvent> eventsA = battleEventRepository.findByStartupId(battle.getStartupA().getId())
+                .stream()
+                .filter(e -> e.getBattle().getId().equals(battle.getId()))
+                .toList();
+
+        List<BattleEvent> eventsB = battle.getStartupB() != null
+                ? battleEventRepository.findByStartupId(battle.getStartupB().getId())
+                .stream()
+                .filter(e -> e.getBattle().getId().equals(battle.getId()))
+                .toList()
+                : List.of();
+
+        return BattleDetailsDTO.builder()
+                .battleId(battle.getId())
+                .startupA(new StartupSummaryDTO(battle.getStartupA().getId(), battle.getStartupA().getName()))
+                .startupB(battle.getStartupB() != null
+                        ? new StartupSummaryDTO(battle.getStartupB().getId(), battle.getStartupB().getName())
+                        : null)
+                .eventsA(eventsA.stream()
+                        .map(e -> BattleEventReportDTO.builder()
+                                .type(e.getType())
+                                .points(e.getPoints())
+                                .build())
+                        .toList())
+                .eventsB(eventsB.stream()
+                        .map(e -> BattleEventReportDTO.builder()
+                                .type(e.getType())
+                                .points(e.getPoints())
+                                .build())
+                        .toList())
+                .completed(battle.isCompleted())
+                .winnerId(battle.getWinner() != null ? battle.getWinner().getId() : null)
+                .build();
+    }
 
     @Transactional
     public List<StartupBattle> startTournament() {

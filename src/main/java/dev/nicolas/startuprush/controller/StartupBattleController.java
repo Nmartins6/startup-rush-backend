@@ -1,5 +1,6 @@
 package dev.nicolas.startuprush.controller;
 
+import dev.nicolas.startuprush.dto.battle.BattleDetailsDTO;
 import dev.nicolas.startuprush.dto.battle.BattleEventsRequestDTO;
 import dev.nicolas.startuprush.dto.startup.ChampionDTO;
 import dev.nicolas.startuprush.dto.battle.PendingBattleDTO;
@@ -55,6 +56,11 @@ public class StartupBattleController {
     @PostMapping("/start-tournament")
     public ResponseEntity<List<StartupBattle>> startTournament() {
         return ResponseEntity.ok(battleService.startTournament());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<BattleDetailsDTO> getBattleDetails(@PathVariable Long id) {
+        return ResponseEntity.ok(battleService.getBattleDetails(id));
     }
 
 }
