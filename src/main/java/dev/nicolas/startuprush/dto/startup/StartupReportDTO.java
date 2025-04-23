@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 @Builder
 public class StartupReportDTO {
+    private Long id;
     private String name;
     private String slogan;
     private int score;

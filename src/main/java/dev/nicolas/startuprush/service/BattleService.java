@@ -1,7 +1,6 @@
 package dev.nicolas.startuprush.service;
 
 import dev.nicolas.startuprush.dto.battle.*;
-import dev.nicolas.startuprush.dto.common.StartupSummaryDTO;
 import dev.nicolas.startuprush.dto.report.BattleReportDTO;
 import dev.nicolas.startuprush.dto.report.RoundReportDTO;
 import dev.nicolas.startuprush.dto.startup.ChampionDTO;

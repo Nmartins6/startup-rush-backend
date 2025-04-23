@@ -1,6 +1,5 @@
 package dev.nicolas.startuprush.dto.battle;
 
-import dev.nicolas.startuprush.dto.common.StartupSummaryDTO;
 import lombok.Builder;
 import lombok.Data;
 

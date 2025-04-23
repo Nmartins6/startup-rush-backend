@@ -105,6 +105,7 @@ public class StartupService {
                     long sharkFightCount = events.stream().filter(e -> e.getType().equals("SHARK_FIGHT")).count();
 
                     return StartupReportDTO.builder()
+                            .id(startup.getId())
                             .name(startup.getName())
                             .slogan(startup.getSlogan())
                             .score(startup.getScore())
@@ -225,4 +226,29 @@ public class StartupService {
         startupRepository.delete(startup);
     }
 
+    public String generateHumanizedReport(Long id) {
+        StartupHistoryDTO history = getStartupHistory(id);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Startup Name: ").append(history.getStartup()).append(".\n\n");
+
+        for (StartupBattleHistoryDTO battle : history.getBattles()) {
+            sb.append("In round ").append(battle.getRound()).append(", ")
+                    .append("they faced ").append(battle.getOpponent()).append(" and ")
+                    .append("the result was ").append(battle.getResult()).append(". ");
+
+            if (!battle.getEvents().isEmpty()) {
+                sb.append("Events applied: ");
+                for (StartupHistoryEventDTO event : battle.getEvents()) {
+                    sb.append(event.getType()).append(" (").append(event.getPoints()).append(" pts), ");
+                }
+                sb.setLength(sb.length() - 2);
+            } else {
+                sb.append("No events were applied in this battle.");
+            }
+            sb.append("\n\n");
+        }
+
+        return sb.toString();
+    }
 }

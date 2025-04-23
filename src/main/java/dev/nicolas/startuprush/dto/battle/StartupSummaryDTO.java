@@ -1,4 +1,4 @@
-package dev.nicolas.startuprush.dto.common;
+package dev.nicolas.startuprush.dto.battle;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,9 +7,11 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class StartupSummaryDTO {
     private Long id;
     private String name;
+    private String slogan;
+    private int score;
 }

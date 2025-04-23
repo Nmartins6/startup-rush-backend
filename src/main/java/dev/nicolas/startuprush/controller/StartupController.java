@@ -3,6 +3,7 @@ package dev.nicolas.startuprush.controller;
 import dev.nicolas.startuprush.dto.startup.*;
 import dev.nicolas.startuprush.model.Startup;
 import dev.nicolas.startuprush.service.StartupService;
+import dev.nicolas.startuprush.service.StartupSummaryService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,9 +15,11 @@ import java.util.List;
 public class StartupController {
 
     private final StartupService startupService;
+    private final StartupSummaryService startupSummaryService;
 
-    public StartupController(StartupService startupService) {
+    public StartupController(StartupService startupService, StartupSummaryService startupSummaryService) {
         this.startupService = startupService;
+        this.startupSummaryService = startupSummaryService;
     }
 
     @PostMapping
@@ -61,9 +64,9 @@ public class StartupController {
         return ResponseEntity.noContent().build();
     }
 
-//    @GetMapping("/ranking/compact")
-//    public ResponseEntity<List<StartupRankingDTO>> getCompactRanking() {
-//        return ResponseEntity.ok(startupService.getCompactRanking());
-//    }
-
+    @GetMapping("/{id}/summary")
+    public ResponseEntity<String> getStartupSummary(@PathVariable Long id) {
+        String summary = startupService.generateHumanizedReport(id);
+        return ResponseEntity.ok(summary);
+    }
 }
