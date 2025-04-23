@@ -11,9 +11,9 @@ import java.util.List;
 @Builder
 public class BattleReportDTO {
     private Long battleId;
-    private StartupSummaryDTO startupA;
-    private StartupSummaryDTO startupB;
-    private StartupSummaryDTO winner;
+    private String startupA;
+    private String startupB;
+    private String winner;
     private List<BattleEventReportDTO> eventsA;
     private List<BattleEventReportDTO> eventsB;
     private boolean advanceByBye;

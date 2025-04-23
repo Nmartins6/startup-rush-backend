@@ -21,8 +21,10 @@ public class BattleEvent {
     private int points;
 
     @ManyToOne
+    @JoinColumn(name = "startup_id", nullable = false)
     private Startup startup;
 
     @ManyToOne
+    @JoinColumn(name = "battle_id", nullable = false)
     private StartupBattle battle;
 }

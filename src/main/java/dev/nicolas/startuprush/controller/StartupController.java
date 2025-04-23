@@ -61,9 +61,9 @@ public class StartupController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/ranking/compact")
-    public ResponseEntity<List<StartupRankingDTO>> getCompactRanking() {
-        return ResponseEntity.ok(startupService.getCompactRanking());
-    }
+//    @GetMapping("/ranking/compact")
+//    public ResponseEntity<List<StartupRankingDTO>> getCompactRanking() {
+//        return ResponseEntity.ok(startupService.getCompactRanking());
+//    }
 
 }

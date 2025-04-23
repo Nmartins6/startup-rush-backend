@@ -33,8 +33,8 @@ public class StartupBattleController {
     }
 
     @GetMapping("/pending")
-    public ResponseEntity<List<PendingBattleDTO>> getPendingBattles() {
-        return ResponseEntity.ok(battleService.getCompactPendingBattles());
+    public ResponseEntity<List<StartupBattle>> getPendingBattles() {
+        return ResponseEntity.ok(battleService.getPendingBattles());
     }
 
     @PostMapping("/round/advance")
@@ -57,10 +57,4 @@ public class StartupBattleController {
     public ResponseEntity<List<StartupBattle>> startTournament() {
         return ResponseEntity.ok(battleService.startTournament());
     }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<BattleDetailsDTO> getBattleDetails(@PathVariable Long id) {
-        return ResponseEntity.ok(battleService.getBattleDetails(id));
-    }
-
 }

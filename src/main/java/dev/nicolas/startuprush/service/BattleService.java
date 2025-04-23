@@ -262,13 +262,9 @@ public class BattleService {
 
                 BattleReportDTO battleDTO = BattleReportDTO.builder()
                         .battleId(battle.getId())
-                        .startupA(new StartupSummaryDTO(battle.getStartupA().getId(), battle.getStartupA().getName()))
-                        .startupB(battle.getStartupB() != null
-                                ? new StartupSummaryDTO(battle.getStartupB().getId(), battle.getStartupB().getName())
-                                : null)
-                        .winner(battle.getWinner() != null
-                                ? new StartupSummaryDTO(battle.getWinner().getId(), battle.getWinner().getName())
-                                : null)
+                        .startupA(battle.getStartupA().getName())
+                        .startupB(battle.getStartupB() != null ? battle.getStartupB().getName() : "BYE")
+                        .winner(battle.getWinner() != null ? battle.getWinner().getName() : null)
                         .eventsA(eventsA.stream()
                                 .map(e -> BattleEventReportDTO.builder()
                                         .type(e.getType())
@@ -295,6 +291,7 @@ public class BattleService {
 
         return roundReports;
     }
+
 
     public ChampionDTO getChampion() {
         List<StartupBattle> allBattles = battleRepository.findAll();
@@ -324,55 +321,6 @@ public class BattleService {
         return ChampionDTO.builder()
                 .name(champion.getName())
                 .slogan(champion.getSlogan())
-                .build();
-    }
-
-    public List<PendingBattleDTO> getCompactPendingBattles() {
-        return battleRepository.findByCompletedFalse().stream()
-                .map(b -> new PendingBattleDTO(
-                        b.getId(),
-                        b.getStartupA().getName(),
-                        b.getStartupB() != null ? b.getStartupB().getName() : "BYE"
-                ))
-                .toList();
-    }
-
-    public BattleDetailsDTO getBattleDetails(Long battleId) {
-        StartupBattle battle = battleRepository.findById(battleId)
-                .orElseThrow(() -> new IllegalArgumentException("Battle not found"));
-
-        List<BattleEvent> eventsA = battleEventRepository.findByStartupId(battle.getStartupA().getId())
-                .stream()
-                .filter(e -> e.getBattle().getId().equals(battle.getId()))
-                .toList();
-
-        List<BattleEvent> eventsB = battle.getStartupB() != null
-                ? battleEventRepository.findByStartupId(battle.getStartupB().getId())
-                .stream()
-                .filter(e -> e.getBattle().getId().equals(battle.getId()))
-                .toList()
-                : List.of();
-
-        return BattleDetailsDTO.builder()
-                .battleId(battle.getId())
-                .startupA(new StartupSummaryDTO(battle.getStartupA().getId(), battle.getStartupA().getName()))
-                .startupB(battle.getStartupB() != null
-                        ? new StartupSummaryDTO(battle.getStartupB().getId(), battle.getStartupB().getName())
-                        : null)
-                .eventsA(eventsA.stream()
-                        .map(e -> BattleEventReportDTO.builder()
-                                .type(e.getType())
-                                .points(e.getPoints())
-                                .build())
-                        .toList())
-                .eventsB(eventsB.stream()
-                        .map(e -> BattleEventReportDTO.builder()
-                                .type(e.getType())
-                                .points(e.getPoints())
-                                .build())
-                        .toList())
-                .completed(battle.isCompleted())
-                .winnerId(battle.getWinner() != null ? battle.getWinner().getId() : null)
                 .build();
     }
 
@@ -406,5 +354,4 @@ public class BattleService {
 
         return battles;
     }
-
 }
